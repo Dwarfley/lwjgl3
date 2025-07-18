@@ -43,6 +43,7 @@ val deployment = when {
             repo = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
         )
     }
+
     hasProperty("snapshot") -> {
         version = "$version-SNAPSHOT"
         setStatus("milestone")
@@ -51,6 +52,7 @@ val deployment = when {
             repo = uri("https://central.sonatype.com/repository/maven-snapshots/")
         )
     }
+
     else -> {
         version = "$version-SNAPSHOT"
         setStatus("integration")
@@ -87,11 +89,13 @@ enum class Platform(
     WINDOWS_X86("windows", "x86"),
     WINDOWS_ARM64("windows", "arm64");
 
-    val classifier: String get() =
-        if(arch == "x64")
-            "natives-${os}"
-        else
-            "natives-${os}-${arch}"
+    val classifier: String
+        get() {
+            return if (arch == "x64")
+                "natives-${os}"
+            else
+                "natives-${os}-${arch}"
+        }
 
     companion object {
         val ALL = values()
@@ -317,8 +321,8 @@ enum class Module(
     private fun path(buildDir: String) =
         "bin/${buildDir}/${id}"
 
-    val isPresent get() =
-        File(path("RELEASE")).exists()
+    val isPresent
+        get() = File(path("RELEASE")).exists()
 
     fun hasArtifact(classifier: String) =
         File("${path("RELEASE")}/${id}-${classifier}.jar").exists()
@@ -458,10 +462,18 @@ publishing {
                             Module.values().forEach { module ->
                                 module.platforms.forEach { platform ->
                                     ownerDocument.createElement("dependency").also(::appendChild).apply {
-                                        appendChild(ownerDocument.createElement("groupId").also(::appendChild).apply { textContent = "org.lwjgl" })
-                                        appendChild(ownerDocument.createElement("artifactId").also(::appendChild).apply { textContent = module.id })
-                                        appendChild(ownerDocument.createElement("version").also(::appendChild).apply { textContent = project.version as String })
-                                        appendChild(ownerDocument.createElement("classifier").also(::appendChild).apply { textContent = platform.classifier })
+                                        appendChild(ownerDocument.createElement("groupId").also(::appendChild).apply {
+                                            textContent = "org.lwjgl"
+                                        })
+                                        appendChild(ownerDocument.createElement("artifactId").also(::appendChild).apply {
+                                            textContent = module.id
+                                        })
+                                        appendChild(ownerDocument.createElement("version").also(::appendChild).apply {
+                                            textContent = project.version as String
+                                        })
+                                        appendChild(ownerDocument.createElement("classifier").also(::appendChild).apply {
+                                            textContent = platform.classifier
+                                        })
                                     }
                                 }
                             }

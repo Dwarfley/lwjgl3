@@ -124,9 +124,9 @@ internal class DefaultComponentConfigurator constructor(
         configAction.execute(configuration)
 
         component.addVariantsFromConfiguration(configuration) {
-            if(type == VariantType.COMPILE){
+            if (type == VariantType.COMPILE) {
                 mapToMavenScope("compile")
-            }else if(type == VariantType.RUNTIME){
+            } else if (type == VariantType.RUNTIME) {
                 mapToMavenScope("runtime")
             }
         }
