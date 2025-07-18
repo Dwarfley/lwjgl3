@@ -67,43 +67,57 @@ if (deployment.type !== BuildType.LOCAL && !canRemotePublish) {
     throw GradleException("Must specify 'sonatypeUsername' and 'sonatypePassword' properties for ${deployment.type.name} builds")
 }
 
-enum class Platforms(val classifier: String) {
-    FREEBSD("freebsd"),
-    LINUX("linux"),
-    LINUX_ARM64("linux-arm64"),
-    LINUX_ARM32("linux-arm32"),
-    LINUX_PPC64LE("linux-ppc64le"),
-    LINUX_RISCV64("linux-riscv64"),
-    MACOS("macos"),
-    MACOS_ARM64("macos-arm64"),
-    WINDOWS("windows"),
-    WINDOWS_X86("windows-x86"),
-    WINDOWS_ARM64("windows-arm64");
+enum class Platform(
+    val os: String,
+    val arch: String
+) {
+    FREEBSD_X64("freebsd", "x64"),
+    LINUX_X64("linux", "x64"),
+    LINUX_ARM64("linux", "arm64"),
+    LINUX_ARM32("linux", "arm32"),
+    LINUX_PPC64LE("linux", "ppc64le"),
+    LINUX_RISCV64("linux", "riscv64"),
+    MACOS_X64("macos", "x64"),
+    MACOS_ARM64("macos", "arm64"),
+    WINDOWS_X64("windows", "x64"),
+    WINDOWS_X86("windows", "x86"),
+    WINDOWS_ARM64("windows", "arm64");
+
+    val classifier: String get() =
+        if(arch == "x64")
+            "natives-${os}"
+        else
+            "natives-${os}-${arch}"
 
     companion object {
         val ALL = values()
+        val FREEBSD = arrayOf(FREEBSD_X64)
+        val LINUX = arrayOf(LINUX_X64, LINUX_ARM64, LINUX_ARM32, LINUX_PPC64LE, LINUX_RISCV64)
+        val MACOS = arrayOf(MACOS_X64, MACOS_ARM64)
+        val WINDOWS = arrayOf(WINDOWS_X64, WINDOWS_X86, WINDOWS_ARM64)
     }
 }
 
-enum class Artifacts(
-    val artifact: String,
-    val projectName: String,
-    val projectDescription: String,
-    vararg val platforms: Platforms
+enum class Module(
+    val id: String,
+    val title: String,
+    val description: String,
+    vararg val platforms: Platform
 ) {
-    CORE("lwjgl", "LWJGL", "The LWJGL core library.", *Platforms.ALL),
+    CORE(
+        "lwjgl", "LWJGL",
+        "The LWJGL core library.",
+        *Platform.ALL
+    ),
     ASSIMP(
         "lwjgl-assimp", "LWJGL - Assimp bindings",
         "A portable Open Source library to import various well-known 3D model formats in a uniform manner.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     BGFX(
         "lwjgl-bgfx", "LWJGL - bgfx bindings",
         "A cross-platform, graphics API agnostic rendering library. It provides a high performance, low level abstraction for common platform graphics APIs like OpenGL, Direct3D and Apple Metal.",
-        Platforms.FREEBSD,
-        Platforms.LINUX, Platforms.LINUX_ARM64, Platforms.LINUX_ARM32, Platforms.LINUX_PPC64LE, Platforms.LINUX_RISCV64,
-        Platforms.MACOS, Platforms.MACOS_ARM64,
-        Platforms.WINDOWS, Platforms.WINDOWS_X86
+        *Platform.FREEBSD, *Platform.LINUX, *Platform.MACOS, Platform.WINDOWS_X64, Platform.WINDOWS_X86
     ),
     EGL(
         "lwjgl-egl", "LWJGL - EGL bindings",
@@ -116,22 +130,22 @@ enum class Artifacts(
     FREETYPE(
         "lwjgl-freetype", "LWJGL - FreeType bindings",
         "A freely available software library to render fonts.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     GLFW(
         "lwjgl-glfw", "LWJGL - GLFW bindings",
         "A multi-platform library for OpenGL, OpenGL ES and Vulkan development on the desktop. It provides a simple API for creating windows, contexts and surfaces, receiving input and events.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     HARFBUZZ(
         "lwjgl-harfbuzz", "LWJGL - HarfBuzz bindings",
         "A text shaping library that allows programs to convert a sequence of Unicode input into properly formatted and positioned glyph output — for any writing system and language.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     HWLOC(
         "lwjgl-hwloc", "LWJGL - hwloc bindings",
         "A portable abstraction of the hierarchical topology of modern architectures, including NUMA memory nodes, sockets, shared caches, cores and simultaneous multithreading.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     JAWT(
         "lwjgl-jawt", "LWJGL - JAWT bindings",
@@ -140,55 +154,52 @@ enum class Artifacts(
     JEMALLOC(
         "lwjgl-jemalloc", "LWJGL - jemalloc bindings",
         "A general purpose malloc implementation that emphasizes fragmentation avoidance and scalable concurrency support.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     KTX(
         "lwjgl-ktx", "LWJGL - KTX (Khronos Texture) bindings",
         "A lightweight container for textures for OpenGL®, Vulkan® and other GPU APIs.",
-        Platforms.FREEBSD,
-        Platforms.LINUX, Platforms.LINUX_ARM64, Platforms.LINUX_ARM32, Platforms.LINUX_PPC64LE, Platforms.LINUX_RISCV64,
-        Platforms.MACOS, Platforms.MACOS_ARM64,
-        Platforms.WINDOWS, Platforms.WINDOWS_ARM64
+        *Platform.FREEBSD, *Platform.LINUX, *Platform.MACOS, Platform.WINDOWS_X64, Platform.WINDOWS_ARM64
     ),
     LLVM(
         "lwjgl-llvm", "LWJGL - LLVM/Clang bindings",
         "A collection of modular and reusable compiler and toolchain technologies.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     LMDB(
         "lwjgl-lmdb", "LWJGL - LMDB bindings",
         "A compact, fast, powerful, and robust database that implements a simplified variant of the BerkeleyDB (BDB) API.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     LZ4(
         "lwjgl-lz4", "LWJGL - LZ4 bindings",
         "A lossless data compression algorithm that is focused on compression and decompression speed.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     MESHOPTIMIZER(
         "lwjgl-meshoptimizer", "LWJGL - meshoptimizer bindings",
         "A library that provides algorithms to help optimize meshes.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     MSDFGEN(
         "lwjgl-msdfgen", "LWJGL - msdfgen bindings",
         "Multi-channel signed distance field generator.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     NANOVG(
         "lwjgl-nanovg", "LWJGL - NanoVG & NanoSVG bindings",
         "A small antialiased vector graphics rendering library for OpenGL. Also includes NanoSVG, a simple SVG parser.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     NFD(
         "lwjgl-nfd", "LWJGL - Native File Dialog bindings",
         "A small C library that portably invokes native file open, folder select and file save dialogs.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     NUKLEAR(
         "lwjgl-nuklear", "LWJGL - Nuklear bindings",
         "A minimal state immediate mode graphical user interface toolkit.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     ODBC(
         "lwjgl-odbc", "LWJGL - ODBC bindings",
@@ -197,7 +208,7 @@ enum class Artifacts(
     OPENAL(
         "lwjgl-openal", "LWJGL - OpenAL bindings",
         "A cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     OPENCL(
         "lwjgl-opencl", "LWJGL - OpenCL bindings",
@@ -206,117 +217,113 @@ enum class Artifacts(
     OPENGL(
         "lwjgl-opengl", "LWJGL - OpenGL bindings",
         "The most widely adopted 2D and 3D graphics API in the industry, bringing thousands of applications to a wide variety of computer platforms.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     OPENGLES(
         "lwjgl-opengles", "LWJGL - OpenGL ES bindings",
         "A royalty-free, cross-platform API for full-function 2D and 3D graphics on embedded systems - including consoles, phones, appliances and vehicles.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     OPENXR(
         "lwjgl-openxr", "LWJGL - OpenXR bindings",
         "A royalty-free, open standard that provides high-performance access to Augmented Reality (AR) and Virtual Reality (VR)—collectively known as XR—platforms and devices.",
-        Platforms.FREEBSD,
-        Platforms.LINUX, Platforms.LINUX_ARM64, Platforms.LINUX_ARM32, Platforms.LINUX_PPC64LE, Platforms.LINUX_RISCV64,
-        Platforms.WINDOWS, Platforms.WINDOWS_X86, Platforms.WINDOWS_ARM64
+        *Platform.FREEBSD, *Platform.LINUX, *Platform.WINDOWS
     ),
     OPUS(
         "lwjgl-opus", "LWJGL - Opus bindings",
         "A totally open, royalty-free, highly versatile audio codec.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     PAR(
         "lwjgl-par", "LWJGL - par_shapes bindings",
         "Generate parametric surfaces and other simple shapes.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     REMOTERY(
         "lwjgl-remotery", "LWJGL - Remotery bindings",
         "A realtime CPU/GPU profiler hosted in a single C file with a viewer that runs in a web browser.",
-        Platforms.FREEBSD,
-        Platforms.LINUX, Platforms.LINUX_ARM64, Platforms.LINUX_ARM32, Platforms.LINUX_PPC64LE, Platforms.LINUX_RISCV64,
-        Platforms.MACOS, Platforms.MACOS_ARM64,
-        Platforms.WINDOWS, Platforms.WINDOWS_X86
+        *Platform.FREEBSD, *Platform.LINUX, *Platform.MACOS, Platform.WINDOWS_X64, Platform.WINDOWS_X86
     ),
     RPMALLOC(
         "lwjgl-rpmalloc", "LWJGL - rpmalloc bindings",
         "A public domain cross platform lock free thread caching 16-byte aligned memory allocator implemented in C.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     SDL(
         "lwjgl-sdl", "LWJGL - SDL bindings",
         "Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     SHADERC(
         "lwjgl-shaderc", "LWJGL - Shaderc bindings",
         "A collection of libraries for shader compilation.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     SPNG(
         "lwjgl-spng", "LWJGL - spng bindings",
         "libspng (simple png) is a C library for reading and writing Portable Network Graphics (PNG) format files with a focus on security and ease of use.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     SPVC(
         "lwjgl-spvc", "LWJGL - SPIRV-Cross bindings",
         "A library for performing reflection on SPIR-V and disassembling SPIR-V back to high level languages.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     STB(
         "lwjgl-stb", "LWJGL - stb bindings",
         "Single-file public domain libraries for fonts, images, ogg vorbis files and more.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     TINYEXR(
         "lwjgl-tinyexr", "LWJGL - Tiny OpenEXR bindings",
         "A small library to load and save OpenEXR(.exr) images.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     TINYFD(
         "lwjgl-tinyfd", "LWJGL - Tiny File Dialogs bindings",
         "Provides basic modal dialogs.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     VMA(
         "lwjgl-vma", "LWJGL - Vulkan Memory Allocator bindings",
         "An easy to integrate Vulkan memory allocation library.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     VULKAN(
         "lwjgl-vulkan", "LWJGL - Vulkan bindings",
         "A new generation graphics and compute API that provides high-efficiency, cross-platform access to modern GPUs used in a wide variety of devices from PCs and consoles to mobile phones and embedded platforms.",
-        Platforms.MACOS, Platforms.MACOS_ARM64
+        *Platform.MACOS
     ),
     XXHASH(
         "lwjgl-xxhash", "LWJGL - xxHash bindings",
         "An extremely fast hash algorithm, running at RAM speed limits.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     YOGA(
         "lwjgl-yoga", "LWJGL - Yoga bindings",
         "An open-source, cross-platform layout library that implements Flexbox.",
-        *Platforms.ALL
+        *Platform.ALL
     ),
     ZSTD(
         "lwjgl-zstd", "LWJGL - Zstandard bindings",
         "A fast lossless compression algorithm, targeting real-time compression scenarios at zlib-level and better compression ratios.",
-        *Platforms.ALL
+        *Platform.ALL
     );
 
-    fun directory(buildDir: String) = "$buildDir/$artifact"
+    private fun path(buildDir: String) =
+        "bin/${buildDir}/${id}"
 
-    private fun path() = "${directory("bin/MAVEN")}/$artifact"
+    val isPresent get() =
+        File(path("RELEASE")).exists()
 
-    val isActive get() = File(directory("bin/RELEASE")).exists()
+    fun hasArtifact(classifier: String) =
+        File("${path("RELEASE")}/${id}-${classifier}.jar").exists()
 
-    fun hasArtifact(classifier: String) = File("${directory("bin/RELEASE")}/${artifact}-${classifier}.jar").exists()
-
-    fun artifact(classifier: String? = null) =
+    fun getArtifact(classifier: String? = null) =
         if (classifier === null)
-            File("${path()}.jar")
+            File("${path("MAVEN")}/${id}.jar")
         else
-            File("${path()}-$classifier.jar")
+            File("${path("MAVEN")}/${id}-${classifier}.jar")
 
 }
 
@@ -397,33 +404,33 @@ publishing {
             }
         }
 
-        Artifacts.values().forEach { module ->
-            if (module.isActive) {
+        Module.values().forEach { module ->
+            if (module.isPresent) {
                 create<MavenPublication>("maven${module.name}") {
-                    artifactId = module.artifact
-                    artifact(module.artifact())
+                    artifactId = module.id
+                    artifact(module.getArtifact())
                     if (deployment.type !== BuildType.LOCAL || module.hasArtifact("sources")) {
-                        artifact(module.artifact("sources")) {
+                        artifact(module.getArtifact("sources")) {
                             classifier = "sources"
                         }
                     }
                     if (deployment.type !== BuildType.LOCAL || module.hasArtifact("javadoc")) {
-                        artifact(module.artifact("javadoc")) {
+                        artifact(module.getArtifact("javadoc")) {
                             classifier = "javadoc"
                         }
                     }
-                    module.platforms.forEach {
-                        if (deployment.type !== BuildType.LOCAL || module.hasArtifact("natives-${it.classifier}")) {
-                            artifact(module.artifact("natives-${it.classifier}")) {
-                                classifier = "natives-${it.classifier}"
+                    module.platforms.forEach { platform ->
+                        if (deployment.type !== BuildType.LOCAL || module.hasArtifact(platform.classifier)) {
+                            artifact(module.getArtifact(platform.classifier)) {
+                                classifier = platform.classifier
                             }
                         }
                     }
 
                     pom {
-                        setupPom(module.projectName, module.projectDescription, "jar")
+                        setupPom(module.title, module.description, "jar")
 
-                        if (module != Artifacts.CORE) {
+                        if (module != Module.CORE) {
                             withXml {
                                 asNode().appendNode("dependencies").apply {
                                     appendNode("dependency").apply {
@@ -450,13 +457,13 @@ publishing {
                 withXml {
                     asElement().getElementsByTagName("dependencyManagement").item(0).apply {
                         asElement().getElementsByTagName("dependencies").item(0).apply {
-                            Artifacts.values().forEach { module ->
-                                module.platforms.forEach {
+                            Module.values().forEach { module ->
+                                module.platforms.forEach { platform ->
                                     ownerDocument.createElement("dependency").also(::appendChild).apply {
                                         appendChild(ownerDocument.createElement("groupId").also(::appendChild).apply { textContent = "org.lwjgl" })
-                                        appendChild(ownerDocument.createElement("artifactId").also(::appendChild).apply { textContent = module.artifact })
+                                        appendChild(ownerDocument.createElement("artifactId").also(::appendChild).apply { textContent = module.id })
                                         appendChild(ownerDocument.createElement("version").also(::appendChild).apply { textContent = project.version as String })
-                                        appendChild(ownerDocument.createElement("classifier").also(::appendChild).apply { textContent = "natives-${it.classifier}" })
+                                        appendChild(ownerDocument.createElement("classifier").also(::appendChild).apply { textContent = platform.classifier })
                                     }
                                 }
                             }
@@ -495,8 +502,8 @@ tasks.withType<Sign> {
 
 dependencies {
     constraints {
-        Artifacts.values().forEach { module ->
-            api("org.lwjgl:${module.artifact}:$version")
+        Module.values().forEach { module ->
+            api("org.lwjgl:${module.id}:${project.version}")
         }
     }
 }
