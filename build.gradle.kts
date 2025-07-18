@@ -6,9 +6,7 @@ import java.net.*
 
 plugins {
     `java-platform`
-    `maven-publish`
-    signing
-    id("lwjgl-component-factory")
+    id("lwjgl-publish")
 }
 
 val lwjglVersion: String by project
