@@ -22,6 +22,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-
+        create("componentFactory") {
+            id = "lwjgl-component-factory"
+            implementationClass = "org.lwjgl.gradle.plugins.ComponentFactoryPlugin"
+        }
     }
 }
