@@ -366,17 +366,25 @@ publishing {
         Instead, we assume that a tool is available (on the LWJGL website)
         that automatically generates POM/Gradle dependency structures for
         projects wanting to use LWJGL. The output is going to be verbose;
-        the above example is going to look like this in Gradle:
+        the above example is going to look like this in kotlin Gradle:
         -------------------------------------------
-        compile 'org.lwjgl:lwjgl:$lwjglVersion' // NOTE: this is optional, all binding artifacts have a dependency on lwjgl
-            compile 'org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglArch'
-        compile 'org.lwjgl:lwjgl-glfw:$lwjglVersion'
-            compile 'org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-$lwjglArch'
-        compile 'org.lwjgl:lwjgl-stb:$lwjglVersion'
-            compile 'org.lwjgl:lwjgl-stb:$lwjglVersion:natives-$lwjglArch'
+        implementation("org.lwjgl:lwjgl:$lwjglVersion") // NOTE: this is optional, all binding artifacts have a dependency on lwjgl
+            implementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglArch")
+        implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
+            implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-$lwjglArch")
+        implementation("org.lwjgl:lwjgl-stb:$lwjglVersion")
+            implementation("org.lwjgl:lwjgl-stb:$lwjglVersion:natives-$lwjglArch")
         -------------------------------------------
         and a whole lot more verbose in Maven. Hopefully, the automation
-        is going to alleviate the pain.
+        is going to alleviate the pain. With gradle module metadata
+        and the use of the BOM, the above will condense to:
+        -------------------------------------------
+        implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
+        implementation("org.lwjgl:lwjgl")
+        implementation("org.lwjgl:lwjgl-glfw")
+        implementation("org.lwjgl:lwjgl-stb")
+        -------------------------------------------
+        given that the os and arch attributes have been set.
          */
         fun MavenPom.setupPom(pomName: String, pomDescription: String, pomPackaging: String) {
             name.set(pomName)
