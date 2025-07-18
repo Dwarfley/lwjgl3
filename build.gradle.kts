@@ -37,7 +37,6 @@ data class Deployment(
 
 val deployment = when {
     hasProperty("release") -> {
-        setStatus("release")
         Deployment(
             type = BuildType.RELEASE,
             repo = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
@@ -46,7 +45,6 @@ val deployment = when {
 
     hasProperty("snapshot") -> {
         version = "$version-SNAPSHOT"
-        setStatus("milestone")
         Deployment(
             type = BuildType.SNAPSHOT,
             repo = uri("https://central.sonatype.com/repository/maven-snapshots/")
@@ -55,7 +53,6 @@ val deployment = when {
 
     else -> {
         version = "$version-SNAPSHOT"
-        setStatus("integration")
         Deployment(
             type = BuildType.LOCAL,
             repo = repositories.mavenLocal().url
