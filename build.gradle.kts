@@ -8,6 +8,7 @@ plugins {
     `java-platform`
     `maven-publish`
     signing
+    id("lwjgl-component-factory")
 }
 
 val lwjglVersion: String by project
@@ -37,12 +38,16 @@ data class Deployment(
 )
 
 val deployment = when {
-    hasProperty("release") -> Deployment(
-        type = BuildType.RELEASE,
-        repo = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-    )
+    hasProperty("release") -> {
+        setStatus("release")
+        Deployment(
+            type = BuildType.RELEASE,
+            repo = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
+        )
+    }
     hasProperty("snapshot") -> {
         version = "$version-SNAPSHOT"
+        setStatus("milestone")
         Deployment(
             type = BuildType.SNAPSHOT,
             repo = uri("https://central.sonatype.com/repository/maven-snapshots/")
@@ -50,6 +55,7 @@ val deployment = when {
     }
     else -> {
         version = "$version-SNAPSHOT"
+        setStatus("integration")
         Deployment(
             type = BuildType.LOCAL,
             repo = repositories.mavenLocal().url
@@ -406,48 +412,34 @@ publishing {
 
         Module.values().forEach { module ->
             if (module.isPresent) {
-                create<MavenPublication>("maven${module.name}") {
-                    artifactId = module.id
-                    artifact(module.getArtifact())
+                val moduleComponent = componentFactory.createComponent(module.id, module.getArtifact(), (project.version as String)) {
                     if (deployment.type !== BuildType.LOCAL || module.hasArtifact("sources")) {
-                        artifact(module.getArtifact("sources")) {
-                            classifier = "sources"
-                        }
+                        sources(module.getArtifact("sources"))
                     }
                     if (deployment.type !== BuildType.LOCAL || module.hasArtifact("javadoc")) {
-                        artifact(module.getArtifact("javadoc")) {
-                            classifier = "javadoc"
-                        }
+                        javadoc(module.getArtifact("javadoc"))
                     }
+
                     module.platforms.forEach { platform ->
                         if (deployment.type !== BuildType.LOCAL || module.hasArtifact(platform.classifier)) {
-                            artifact(module.getArtifact(platform.classifier)) {
-                                classifier = platform.classifier
-                            }
+                            native(module.getArtifact(platform.classifier), platform.os, platform.arch, platform.classifier)
                         }
                     }
+                }
+
+                create<MavenPublication>(moduleComponent.name) {
+                    artifactId = module.id
+
+                    from(moduleComponent)
 
                     pom {
                         setupPom(module.title, module.description, "jar")
-
-                        if (module != Module.CORE) {
-                            withXml {
-                                asNode().appendNode("dependencies").apply {
-                                    appendNode("dependency").apply {
-                                        appendNode("groupId", "org.lwjgl")
-                                        appendNode("artifactId", "lwjgl")
-                                        appendNode("version", project.version)
-                                        appendNode("scope", "compile")
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
         }
 
-        create<MavenPublication>("lwjglBOM") {
+        create<MavenPublication>("LwjglBom") {
             from(components["javaPlatform"])
             artifactId = "lwjgl-bom"
 
