@@ -378,7 +378,7 @@ publishing {
         and a whole lot more verbose in Maven. Hopefully, the automation
         is going to alleviate the pain.
          */
-        fun org.gradle.api.publish.maven.MavenPom.setupPom(pomName: String, pomDescription: String, pomPackaging: String) {
+        fun MavenPom.setupPom(pomName: String, pomDescription: String, pomPackaging: String) {
             name.set(pomName)
             description.set(pomDescription)
             url.set("https://www.lwjgl.org")
