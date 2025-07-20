@@ -7,6 +7,7 @@ package org.lwjgl.gradle.plugins
 import org.gradle.api.*
 import org.gradle.api.artifacts.*
 import org.gradle.api.attributes.*
+import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.component.*
 import org.gradle.api.model.*
 import org.gradle.nativeplatform.*
@@ -121,6 +122,9 @@ internal class DefaultComponentConfigurator constructor(
             isCanBeResolved = false
             isCanBeConsumed = true
             attributes {
+                if (type.containsJavaBinary) {
+                    attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+                }
                 attribute(Attribute.of("org.lwjgl.module", String::class.java), id)
             }
             type.applyAttributes(project.objects, this)
