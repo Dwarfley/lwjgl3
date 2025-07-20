@@ -15,7 +15,7 @@ import java.io.*
 import javax.inject.*
 
 internal enum class VariantType(
-    val hasDependencies: Boolean,
+    val containsJavaBinary: Boolean,
     private val usage: String,
     private val category: String,
     private val bundling: String,
@@ -26,7 +26,7 @@ internal enum class VariantType(
     RUNTIME(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
     NATIVE_COMPILE(true, Usage.JAVA_API, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
     NATIVE_RUNTIME(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    NATIVE_ONLY(true, Usage.NATIVE_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
+    NATIVE_ONLY(false, Usage.NATIVE_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
     JAVADOC(false, Usage.JAVA_RUNTIME, Category.DOCUMENTATION, Bundling.EXTERNAL, DocsType.JAVADOC, null),
     SOURCES(false, Usage.JAVA_RUNTIME, Category.DOCUMENTATION, Bundling.EXTERNAL, DocsType.SOURCES, null);
 
@@ -124,7 +124,7 @@ internal class DefaultComponentConfigurator constructor(
                 attribute(Attribute.of("org.lwjgl.module", String::class.java), id)
             }
             type.applyAttributes(project.objects, this)
-            if (!isCore && type.hasDependencies) {
+            if (!isCore && type.containsJavaBinary) {
                 dependencies.add(project.dependencies.create("org.lwjgl:lwjgl:${version}"))
             }
         }
