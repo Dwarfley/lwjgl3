@@ -24,8 +24,9 @@ internal enum class VariantType(
 ) {
     COMPILE(true, Usage.JAVA_API, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
     RUNTIME(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
+    NATIVE_COMPILE(true, Usage.JAVA_API, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
+    NATIVE_RUNTIME(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
     NATIVE_ONLY(true, Usage.NATIVE_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    NATIVE_BOTH(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
     JAVADOC(false, Usage.JAVA_RUNTIME, Category.DOCUMENTATION, Bundling.EXTERNAL, DocsType.JAVADOC, null),
     SOURCES(false, Usage.JAVA_RUNTIME, Category.DOCUMENTATION, Bundling.EXTERNAL, DocsType.SOURCES, null);
 
@@ -77,15 +78,22 @@ internal class DefaultComponentConfigurator constructor(
             }
         }
 
-        createConfiguration("${platform}Natives", VariantType.NATIVE_ONLY) {
+        createConfiguration("${platform}Api", VariantType.NATIVE_COMPILE) {
             addAttributes(this)
+            outgoing.artifact(mainArtifact)
             outgoing.artifact(artifact) {
                 this.classifier = classifier
             }
         }
-        createConfiguration("${platform}Runtime", VariantType.NATIVE_BOTH) {
+        createConfiguration("${platform}Runtime", VariantType.NATIVE_RUNTIME) {
             addAttributes(this)
             outgoing.artifact(mainArtifact)
+            outgoing.artifact(artifact) {
+                this.classifier = classifier
+            }
+        }
+        createConfiguration("${platform}Native", VariantType.NATIVE_ONLY) {
+            addAttributes(this)
             outgoing.artifact(artifact) {
                 this.classifier = classifier
             }
