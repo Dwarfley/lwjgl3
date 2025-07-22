@@ -6,12 +6,12 @@ rootProject.name = "Root"
 
 includeBuild("build-logic")
 
-val modulesDir = file("bin/RELEASE/")
+val releaseDir = file("bin/RELEASE/")
 
-if (modulesDir.exists() && modulesDir.isDirectory) {
-    modulesDir.listFiles { file -> file.isDirectory }.forEach { dir ->
+if (releaseDir.exists() && releaseDir.isDirectory) {
+    releaseDir.listFiles { file -> file.isDirectory }.forEach { dir ->
         val moduleId = dir.name
-        val moduleDir = file("bin/GRADLE/${moduleId}")
+        val moduleDir = file("publish/${moduleId}")
 
         if (!moduleDir.exists()) {
             moduleDir.mkdirs();
