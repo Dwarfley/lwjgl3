@@ -10,18 +10,35 @@ plugins {
 }
 
 val lwjglVersion: String by project
+val lwjglGroup: String by project
+
 val signingKeyId: String? by project
 val signingKey: String? by project
 val signingPassword: String? by project
+
 val sonatypeUsername: String? by project
 val sonatypePassword: String? by project
+val releaseRepo: String by project
+val snapshotRepo: String by project
+
+val pomUrl: String by project
+val pomScmConnection: String by project
+val pomScmDeveloperConnection: String by project
+val pomScmUrl: String by project
+val pomLicenseName: String by project
+val pomLicenseUrl: String by project
+val pomLicenseDistribution: String by project
+val pomDeveloperId: String by project
+val pomDeveloperName: String by project
+val pomDeveloperEmail: String by project
+val pomDeveloperUrl: String by project
 
 val canSign: Boolean = signingKeyId != null && signingKey != null && signingPassword != null
 val canRemotePublish: Boolean = sonatypeUsername != null && sonatypePassword != null
 
 defaultTasks = mutableListOf("publish")
 buildDir = file("bin/MAVEN")
-group = "org.lwjgl"
+group = lwjglGroup
 version = lwjglVersion
 
 enum class BuildType {
@@ -39,7 +56,7 @@ val deployment = when {
     hasProperty("release") -> {
         Deployment(
             type = BuildType.RELEASE,
-            repo = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
+            repo = uri(releaseRepo)
         )
     }
 
@@ -47,7 +64,7 @@ val deployment = when {
         version = "$version-SNAPSHOT"
         Deployment(
             type = BuildType.SNAPSHOT,
-            repo = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            repo = uri(snapshotRepo)
         )
     }
 
@@ -390,29 +407,29 @@ publishing {
         fun MavenPom.setupPom(pomName: String, pomDescription: String, pomPackaging: String) {
             name.set(pomName)
             description.set(pomDescription)
-            url.set("https://www.lwjgl.org")
+            url.set(pomUrl)
             packaging = pomPackaging
 
             scm {
-                connection.set("scm:git:https://github.com/LWJGL/lwjgl3.git")
-                developerConnection.set("scm:git:https://github.com/LWJGL/lwjgl3.git")
-                url.set("https://github.com/LWJGL/lwjgl3.git")
+                connection.set(pomScmConnection)
+                developerConnection.set(pomScmDeveloperConnection)
+                url.set(pomScmUrl)
             }
 
             licenses {
                 license {
-                    name.set("BSD-3-Clause")
-                    url.set("https://www.lwjgl.org/license")
-                    distribution.set("repo")
+                    name.set(pomLicenseName)
+                    url.set(pomLicenseUrl)
+                    distribution.set(pomLicenseDistribution)
                 }
             }
 
             developers {
                 developer {
-                    id.set("spasi")
-                    name.set("Ioannis Tsakpinis")
-                    email.set("iotsakp@gmail.com")
-                    url.set("https://github.com/Spasi")
+                    id.set(pomDeveloperId)
+                    name.set(pomDeveloperName)
+                    email.set(pomDeveloperEmail)
+                    url.set(pomDeveloperUrl)
                 }
             }
         }
