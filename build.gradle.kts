@@ -6,22 +6,9 @@ import java.net.*
 
 plugins {
     `java-platform`
-    `maven-publish`
-    signing
+    id("lwjgl-publishing")
     id("lwjgl-component-factory")
 }
-
-val lwjglVersion: String by project
-val lwjglGroup: String by project
-
-val signingKeyId: String? by project
-val signingKey: String? by project
-val signingPassword: String? by project
-
-val sonatypeUsername: String? by project
-val sonatypePassword: String? by project
-val releaseRepo: String by project
-val snapshotRepo: String by project
 
 val pomUrl: String by project
 val pomScmConnection: String by project
@@ -35,59 +22,7 @@ val pomDeveloperName: String by project
 val pomDeveloperEmail: String by project
 val pomDeveloperUrl: String by project
 
-val canSign: Boolean = signingKeyId != null && signingKey != null && signingPassword != null
-val canRemotePublish: Boolean = sonatypeUsername != null && sonatypePassword != null
-
-defaultTasks = mutableListOf("publish")
 buildDir = file("bin/MAVEN")
-group = lwjglGroup
-version = lwjglVersion
-
-enum class BuildType {
-    LOCAL,
-    SNAPSHOT,
-    RELEASE
-}
-
-data class Deployment(
-    val type: BuildType,
-    val repo: URI
-)
-
-val deployment = when {
-    hasProperty("release") -> {
-        Deployment(
-            type = BuildType.RELEASE,
-            repo = uri(releaseRepo)
-        )
-    }
-
-    hasProperty("snapshot") -> {
-        version = "$version-SNAPSHOT"
-        Deployment(
-            type = BuildType.SNAPSHOT,
-            repo = uri(snapshotRepo)
-        )
-    }
-
-    else -> {
-        version = "$version-SNAPSHOT"
-        Deployment(
-            type = BuildType.LOCAL,
-            repo = repositories.mavenLocal().url
-        )
-    }
-}
-
-println("${deployment.type.name} BUILD")
-
-if (deployment.type !== BuildType.LOCAL && !canSign) {
-    throw GradleException("Must specify 'signingKeyId', 'signingKey' and 'signingPassword' properties for ${deployment.type.name} builds")
-}
-
-if (deployment.type !== BuildType.LOCAL && !canRemotePublish) {
-    throw GradleException("Must specify 'sonatypeUsername' and 'sonatypePassword' properties for ${deployment.type.name} builds")
-}
 
 enum class Platform(
     val os: String,
@@ -352,18 +287,6 @@ enum class Module(
 }
 
 publishing {
-    repositories {
-        maven {
-            url = deployment.repo
-
-            if (deployment.type !== BuildType.LOCAL) {
-                credentials {
-                    username = sonatypeUsername
-                    password = sonatypePassword
-                }
-            }
-        }
-    }
     publications {
         /*
         Ideally, we'd have the following structure:
@@ -439,15 +362,15 @@ publishing {
         Module.values().forEach { module ->
             if (module.isPresent) {
                 val moduleComponent = componentFactory.createComponent(module.id, module.getArtifact(), (project.version as String)) {
-                    if (deployment.type !== BuildType.LOCAL || module.hasArtifact("sources")) {
+                    if (/*deployment.type !== BuildType.LOCAL ||*/ module.hasArtifact("sources")) {
                         sources(module.getArtifact("sources"))
                     }
-                    if (deployment.type !== BuildType.LOCAL || module.hasArtifact("javadoc")) {
+                    if (/*deployment.type !== BuildType.LOCAL ||*/ module.hasArtifact("javadoc")) {
                         javadoc(module.getArtifact("javadoc"))
                     }
 
                     module.platforms.forEach { platform ->
-                        if (deployment.type !== BuildType.LOCAL || module.hasArtifact(platform.classifier)) {
+                        if (/*deployment.type !== BuildType.LOCAL ||*/ module.hasArtifact(platform.classifier)) {
                             native(module.getArtifact(platform.classifier), platform.os, platform.arch, platform.classifier)
                         }
                     }
@@ -502,18 +425,6 @@ publishing {
             }
         }
     }
-}
-
-signing {
-    setRequired({
-        canSign
-    })
-    useInMemoryPgpKeys(
-        signingKeyId,
-        signingKey,
-        signingPassword
-    )
-    sign(publishing.publications)
 }
 
 val copyArchives = tasks.create<Copy>("copyArchives") {
