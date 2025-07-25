@@ -17,6 +17,6 @@ val modulesDir = file("publish/modules/")
 if (modulesDir.exists() && modulesDir.isDirectory) {
     modulesDir.listFiles { file -> file.isDirectory }.forEach { dir ->
         include("modules:${dir.name}")
-        project(":${dir.name}").projectDir = dir
+        project(":modules:${dir.name}").projectDir = dir
     }
 }
