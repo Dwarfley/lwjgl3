@@ -6,18 +6,17 @@ rootProject.name = "root"
 
 includeBuild("build-logic")
 
-val releaseDir = file("bin/RELEASE/")
+include("modules")
+project(":modules").projectDir = file("publish/modules")
 
-if (releaseDir.exists() && releaseDir.isDirectory) {
-    releaseDir.listFiles { file -> file.isDirectory }.forEach { dir ->
-        val moduleId = dir.name
-        val moduleDir = file("publish/${moduleId}")
+include("platform")
+project(":platform").projectDir = file("publish/platform")
 
-        if (!moduleDir.exists()) {
-            moduleDir.mkdirs();
-        }
+val modulesDir = file("publish/modules/")
 
-        include(":${moduleId}")
-        project(":${moduleId}").projectDir = moduleDir
+if (modulesDir.exists() && modulesDir.isDirectory) {
+    modulesDir.listFiles { file -> file.isDirectory }.forEach { dir ->
+        include("modules:${dir.name}")
+        project(":${dir.name}").projectDir = dir
     }
 }
