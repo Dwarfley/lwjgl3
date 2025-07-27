@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - par_shapes bindings")
+    description("Generate parametric surfaces and other simple shapes.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

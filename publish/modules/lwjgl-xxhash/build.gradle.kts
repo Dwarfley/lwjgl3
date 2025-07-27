@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - xxHash bindings")
+    description("An extremely fast hash algorithm, running at RAM speed limits.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

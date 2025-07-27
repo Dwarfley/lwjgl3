@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - msdfgen bindings")
+    description("Multi-channel signed distance field generator.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

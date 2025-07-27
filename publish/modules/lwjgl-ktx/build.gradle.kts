@@ -5,3 +5,15 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - KTX (Khronos Texture) bindings")
+    description("A lightweight container for textures for OpenGL®, Vulkan® and other GPU APIs.")
+    platforms {
+        platform(FREEBSD, NATIVE_REQUIRED)
+        platform(LINUX, NATIVE_REQUIRED)
+        platform(MACOS, NATIVE_REQUIRED)
+        platform(WINDOWS_X64, NATIVE_REQUIRED)
+        platform(WINDOWS_ARM64, NATIVE_REQUIRED)
+    }
+}

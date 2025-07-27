@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - Tiny File Dialogs bindings")
+    description("Provides basic modal dialogs.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

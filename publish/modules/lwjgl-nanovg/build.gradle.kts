@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - NanoVG & NanoSVG bindings")
+    description("A small antialiased vector graphics rendering library for OpenGL. Also includes NanoSVG, a simple SVG parser.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

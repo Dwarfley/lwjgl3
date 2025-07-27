@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - LZ4 bindings")
+    description("A lossless data compression algorithm that is focused on compression and decompression speed.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

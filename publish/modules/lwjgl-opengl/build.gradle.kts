@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - OpenGL bindings")
+    description("The most widely adopted 2D and 3D graphics API in the industry, bringing thousands of applications to a wide variety of computer platforms.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

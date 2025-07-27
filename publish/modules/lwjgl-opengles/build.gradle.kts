@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - OpenGL ES bindings")
+    description("A royalty-free, cross-platform API for full-function 2D and 3D graphics on embedded systems - including consoles, phones, appliances and vehicles.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - JAWT bindings")
+    description("The AWT native interface.")
+    platforms {
+        platform(ALL, NATIVE_OPTIONAL)
+    }
+}

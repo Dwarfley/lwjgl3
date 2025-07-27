@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - Tiny OpenEXR bindings")
+    description("A small library to load and save OpenEXR(.exr) images.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - meshoptimizer bindings")
+    description("A library that provides algorithms to help optimize meshes.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

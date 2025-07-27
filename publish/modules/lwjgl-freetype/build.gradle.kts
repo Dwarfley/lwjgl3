@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL - FreeType bindings")
+    description("A freely available software library to render fonts.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}

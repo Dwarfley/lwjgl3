@@ -5,3 +5,11 @@
 plugins {
     id("lwjgl-module")
 }
+
+lwjglPublication {
+    title("LWJGL")
+    description("The LWJGL core library.")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
+}
