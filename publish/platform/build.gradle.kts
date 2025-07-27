@@ -5,3 +5,8 @@
 plugins {
     id("lwjgl-platform")
 }
+
+lwjglPublication {
+    title("LWJGL BOM")
+    description("LWJGL 3 Bill of Materials.")
+}
