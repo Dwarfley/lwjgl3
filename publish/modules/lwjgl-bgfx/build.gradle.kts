@@ -13,7 +13,7 @@ lwjglPublication {
         platform(FREEBSD, NATIVE_REQUIRED)
         platform(LINUX, NATIVE_REQUIRED)
         platform(MACOS, NATIVE_REQUIRED)
-        platform(WINDOWS, X64, NATIVE_REQUIRED)
-        platform(WINDOWS, X86, NATIVE_REQUIRED)
+        platform(WINDOWS_X64, NATIVE_REQUIRED)
+        platform(WINDOWS_X86, NATIVE_REQUIRED)
     }
 }
