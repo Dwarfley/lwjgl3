@@ -5,6 +5,7 @@
 plugins {
     `maven-publish`
     signing
+    id("lwjgl-publication")
 }
 
 val lwjglVersion: String by project

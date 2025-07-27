@@ -26,5 +26,9 @@ gradlePlugin {
             id = "lwjgl-component-factory"
             implementationClass = "org.lwjgl.gradle.plugins.ComponentFactoryPlugin"
         }
+        create("lwjglPublication") {
+            id = "lwjgl-publication"
+            implementationClass = "org.lwjgl.gradle.plugins.LwjglPublicationPlugin"
+        }
     }
 }
