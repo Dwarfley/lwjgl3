@@ -157,15 +157,15 @@ open class LwjglPublicationExtension constructor(
         return getFile("").exists()
     }
 
-    private fun hasArtifact(platform: Platform): Boolean {
-        return getFile("${project.name}-${platform.classifier()}.jar").exists()
+    private fun hasArtifact(classifier: String): Boolean {
+        return getFile("${project.name}-${classifier}.jar").exists()
     }
 
-    private fun getArtifact(platform: Platform? = null) {
-        if (platform === null) {
+    private fun getArtifact(classifier: String? = null) {
+        if (classifier === null) {
             getFile("${project.name}.jar")
         } else {
-            getFile("${project.name}-${platform.classifier()}.jar")
+            getFile("${project.name}-${classifier}.jar")
         }
     }
 
