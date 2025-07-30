@@ -16,33 +16,12 @@ enum class Platform(
     val os: String,
     val arch: String
 ) {
-    FREEBSD_X64("freebsd", "x64"),
-    LINUX_X64("linux", "x64"),
-    LINUX_ARM64("linux", "arm64"),
-    LINUX_ARM32("linux", "arm32"),
-    LINUX_PPC64LE("linux", "ppc64le"),
-    LINUX_RISCV64("linux", "riscv64"),
-    MACOS_X64("macos", "x64"),
-    MACOS_ARM64("macos", "arm64"),
-    WINDOWS_X64("windows", "x64"),
-    WINDOWS_X86("windows", "x86"),
-    WINDOWS_ARM64("windows", "arm64");
+    NONE("os", "arch");
 
     val classifier: String
         get() {
-            return if (arch == "x64")
-                "natives-${os}"
-            else
-                "natives-${os}-${arch}"
+            return ""
         }
-
-    companion object {
-        val ALL = values()
-        val FREEBSD = arrayOf(FREEBSD_X64)
-        val LINUX = arrayOf(LINUX_X64, LINUX_ARM64, LINUX_ARM32, LINUX_PPC64LE, LINUX_RISCV64)
-        val MACOS = arrayOf(MACOS_X64, MACOS_ARM64)
-        val WINDOWS = arrayOf(WINDOWS_X64, WINDOWS_X86, WINDOWS_ARM64)
-    }
 }
 
 enum class Module(
@@ -51,8 +30,7 @@ enum class Module(
 ) {
 
     NONE(
-        "id",
-        *Platform.ALL
+        "id"
     );
 
     private fun path(buildDir: String) =
@@ -133,16 +111,6 @@ publishing {
             }
         }
     }
-}
-
-val copyArchives = tasks.create<Copy>("copyArchives") {
-    from("bin/RELEASE")
-    include("**")
-    destinationDir = buildDir
-}
-
-tasks.withType<Sign> {
-    dependsOn(copyArchives)
 }
 
 dependencies {
