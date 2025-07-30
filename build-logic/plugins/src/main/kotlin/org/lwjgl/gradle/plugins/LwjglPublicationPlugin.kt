@@ -61,8 +61,14 @@ class PlatformConfigurator internal constructor(
     val NATIVE_REQUIRED: NativeRequirement = NativeRequirement()
     val NATIVE_OPTIONAL: NativeRequirement = NativeRequirement()
 
-    fun platform(platform: Platform, nativeRequirement: NativeRequirement) {
+    val supportedPlatforms = mutableListOf<Platform>()
+    val nativePlatforms = mutableListOf<Platform>()
 
+    fun platform(platform: Platform, nativeRequirement: NativeRequirement) {
+        supportedPlatforms.add(platform)
+        if (nativeRequirement == NATIVE_REQUIRED) {
+            nativePlatforms.add(platform)
+        }
     }
 
     fun platform(platformGroup: PlatformGroup, nativeRequirement: NativeRequirement) {
