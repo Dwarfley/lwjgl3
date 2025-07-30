@@ -74,9 +74,9 @@ class PlatformConfigurator internal constructor(
         }
     }
 
-    internal fun forEach(action: (Platform, NativeRequirement) -> Unit){
+    internal fun forEach(action: (Platform, Boolean) -> Unit){
         platformMap.forEach { platform, nativeRequirement ->
-            action.invoke(platform, nativeRequirement)
+            action.invoke(platform, nativeRequirement == NATIVE_REQUIRED)
         }
     }
 }
@@ -156,8 +156,8 @@ open class LwjglPublicationExtension constructor(
                 /*javadoc(getArtifact("javadoc"))*/
             }
 
-            publication.platforms.forEach { platform, nativeRequirement ->
-                if (publicationType != PublicationType.LOCAL || hasArtifact(platform.classifier())) {
+            publication.platforms.forEach { platform, isNativeRequired ->
+                if (isNativeRequired && (publicationType != PublicationType.LOCAL || hasArtifact(platform.classifier()))) {
                     /*native(getArtifact(platform.classifier()), platform.os, platform.arch, platform.classifier())*/
                 }
             }
