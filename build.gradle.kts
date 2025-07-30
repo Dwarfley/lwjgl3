@@ -12,44 +12,6 @@ plugins {
 
 buildDir = file("bin/MAVEN")
 
-enum class Platform(
-    val os: String,
-    val arch: String
-) {
-    NONE("os", "arch");
-
-    val classifier: String
-        get() {
-            return ""
-        }
-}
-
-enum class Module(
-    val id: String,
-    vararg val platforms: Platform
-) {
-
-    NONE(
-        "id"
-    );
-
-    private fun path(buildDir: String) =
-        "bin/${buildDir}/${id}"
-
-    val isPresent
-        get() = File(path("RELEASE")).exists()
-
-    fun hasArtifact(classifier: String) =
-        File("${path("RELEASE")}/${id}-${classifier}.jar").exists()
-
-    fun getArtifact(classifier: String? = null) =
-        if (classifier === null)
-            File("${path("MAVEN")}/${id}.jar")
-        else
-            File("${path("MAVEN")}/${id}-${classifier}.jar")
-
-}
-
 publishing {
     publications {
         Module.values().forEach { module ->

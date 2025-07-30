@@ -11,6 +11,7 @@ import org.gradle.api.publish.maven.*
 import org.gradle.api.publish.maven.plugins.*
 import org.gradle.kotlin.dsl.*
 import org.lwjgl.gradle.utils.*
+import java.io.*
 import javax.inject.*
 
 class Platform internal constructor(
@@ -148,6 +149,27 @@ open class LwjglPublicationExtension constructor(
                 }
             }
         }
+    }
+
+    private fun isPresent(): Boolean {
+        return getFile("").exists()
+    }
+
+    private fun hasArtifact(platform: Platform): Boolean {
+        return getFile("${project.name}-${platform.classifier()}.jar").exists()
+    }
+
+    private fun getArtifact(platform: Platform? = null) {
+        if (platform === null) {
+            getFile("${project.name}.jar")
+        } else {
+            getFile("${project.name}-${platform.classifier()}.jar")
+        }
+    }
+
+    private fun getFile(path: String): File {
+        val root = project.rootProject.layout.projectDirectory.asFile
+        return root.resolve("bin/RELEASE/${project.name}/$path")
     }
 }
 
