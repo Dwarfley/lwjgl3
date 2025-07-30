@@ -60,18 +60,18 @@ internal enum class VariantType(
 internal class ComponentConfigurator constructor(
     private val project: Project,
     private val component: AdhocComponentWithVariants,
-    private val id: String,
-    private val mainArtifact: File,
-    private val version: String,
-    private val isCore: Boolean
 ) {
-    init {
+    fun main(artifact: File) {
         createConfiguration("Api", VariantType.COMPILE) {
-            outgoing.artifact(mainArtifact)
+            outgoing.artifact(artifact)
         }
         createConfiguration("Runtime", VariantType.RUNTIME) {
-            outgoing.artifact(mainArtifact)
+            outgoing.artifact(artifact)
         }
+    }
+
+    fun native(os: String, arch: String) {
+
     }
 
     fun native(artifact: File, os: String, arch: String, classifier: String) {
@@ -86,14 +86,14 @@ internal class ComponentConfigurator constructor(
 
         createConfiguration("${platform}Api", VariantType.NATIVE_COMPILE) {
             addAttributes(this)
-            outgoing.artifact(mainArtifact)
+            /*outgoing.artifact(mainArtifact)*/
             outgoing.artifact(artifact) {
                 this.classifier = classifier
             }
         }
         createConfiguration("${platform}Runtime", VariantType.NATIVE_RUNTIME) {
             addAttributes(this)
-            outgoing.artifact(mainArtifact)
+            /*outgoing.artifact(mainArtifact)*/
             outgoing.artifact(artifact) {
                 this.classifier = classifier
             }
@@ -123,18 +123,18 @@ internal class ComponentConfigurator constructor(
     }
 
     private fun createConfiguration(name: String, type: VariantType, configAction: Action<Configuration>) {
-        val configuration = project.configurations.create("${id.toCamelCase()}${name}Elements") {
+        val configuration = project.configurations.create("${project.name.toCamelCase()}${name}Elements") {
             isCanBeResolved = false
             isCanBeConsumed = true
             attributes {
                 if (type.containsJavaBinary) {
                     attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
                 }
-                attribute(Attribute.of("org.lwjgl.module", String::class.java), id)
+                attribute(Attribute.of("org.lwjgl.module", String::class.java), project.name)
             }
             type.applyAttributes(project.objects, this)
-            if (!isCore && type.containsJavaBinary) {
-                dependencies.add(project.dependencies.create("org.lwjgl:lwjgl:${version}"))
+            if (project.name != "lwjgl" && type.containsJavaBinary) {
+                dependencies.add(project.dependencies.create("org.lwjgl:lwjgl:${project.version}"))
             }
         }
 
@@ -252,7 +252,7 @@ open class LwjglPublicationExtension constructor(
     private val project: Project,
     private val softwareComponentFactory: SoftwareComponentFactory
 ) {
-    private var publicationType: PublicationType = PublicationType.LOCAL
+    private var publicationType: PublicationType? = null
     private val pomActions = mutableListOf<Action<MavenPom>>()
 
     fun local(){
@@ -272,36 +272,36 @@ open class LwjglPublicationExtension constructor(
     }
 
     fun createFromModule(action: Action<ModulePublication>) {
-        if(!isPresent()){
-            return
-        }
-
         val publication = ModulePublication()
 
         action.execute(publication)
 
-        create(project.name.toPascalCase(), publication) {
+        if(!isPresent()){
+            return
+        }
+
+        createMavenPublication(project.name.toPascalCase(), publication) {
             artifactId = project.name
 
-            val component = softwareComponentFactory.adhoc("lwjglModule")
+            val component = createComponent(){
+                val isLocal = publicationType == PublicationType.LOCAL
 
-            val configurator = ComponentConfigurator(project, component, project.name, getArtifact(), (project.version) as String, project.name == "lwjgl")
+                main(getArtifact())
 
-            fun c(action: Action<ComponentConfigurator>){
-                action.execute(configurator)
-            }
-
-            c() {
-                if (publicationType != PublicationType.LOCAL || hasArtifact("sources")) {
+                if (!isLocal || hasArtifact("sources")) {
                     sources(getArtifact("sources"))
                 }
-                if (publicationType != PublicationType.LOCAL || hasArtifact("javadoc")) {
+                if (!isLocal || hasArtifact("javadoc")) {
                     javadoc(getArtifact("javadoc"))
                 }
 
                 publication.platforms.forEach { platform, isNativeRequired ->
-                    if (isNativeRequired && (publicationType != PublicationType.LOCAL || hasArtifact(platform.classifier()))) {
-                        native(getArtifact(platform.classifier()), platform.os, platform.arch, platform.classifier())
+                    if (!isLocal || hasArtifact(platform.classifier())) {
+                        if(isNativeRequired){
+                            native(getArtifact(platform.classifier()), platform.os, platform.arch, platform.classifier())
+                        }else{
+                            native(platform.os, platform.arch)
+                        }
                     }
                 }
             }
@@ -315,18 +315,26 @@ open class LwjglPublicationExtension constructor(
 
         action.execute(publication)
 
-        create(project.name.toPascalCase(), publication) {
+        createMavenPublication(project.name.toPascalCase(), publication) {
             artifactId = "lwjgl-bom"
 
             from(project.components["javaPlatform"])
         }
     }
 
-    private fun create(name: String, publication: LwjglPublication, action: Action<MavenPublication>) {
+    private fun createComponent(action: Action<ComponentConfigurator>): AdhocComponentWithVariants {
+        val component = softwareComponentFactory.adhoc("lwjgl")
+        val configurator = ComponentConfigurator(project, component)
+
+        action.execute(configurator)
+
+        return component
+    }
+
+    private fun createMavenPublication(name: String, publication: LwjglPublication, action: Action<MavenPublication>) {
         project.extensions.configure<PublishingExtension> {
             publications {
                 create<MavenPublication>(name) {
-                    action.execute(this)
                     pom {
                         this.name.set(publication.title)
                         this.description.set(publication.description)
@@ -334,6 +342,8 @@ open class LwjglPublicationExtension constructor(
                             action.execute(this)
                         }
                     }
+
+                    action.execute(this)
                 }
             }
         }
@@ -348,7 +358,7 @@ open class LwjglPublicationExtension constructor(
     }
 
     private fun getArtifact(classifier: String? = null): File {
-        return if (classifier === null) {
+        return if (classifier == null) {
             getFile("${project.name}.jar")
         } else {
             getFile("${project.name}-${classifier}.jar")
@@ -357,7 +367,7 @@ open class LwjglPublicationExtension constructor(
 
     private fun getFile(path: String): File {
         val root = project.rootProject.layout.projectDirectory.asFile
-        return root.resolve("bin/RELEASE/${project.name}/$path")
+        return root.resolve("bin/RELEASE/${project.name}/${path}")
     }
 }
 
