@@ -2,46 +2,10 @@
  * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
-import java.net.*
-
-plugins {
-    `java-platform`
-    id("lwjgl-publishing")
-    id("lwjgl-component-factory")
-}
-
-buildDir = file("bin/MAVEN")
-
+/*
 publishing {
     publications {
-        Module.values().forEach { module ->
-            if (module.isPresent) {
-                val moduleComponent = componentFactory.createComponent(module.id, module.getArtifact(), (project.version as String)) {
-                    if (/*deployment.type !== BuildType.LOCAL ||*/ module.hasArtifact("sources")) {
-                        sources(module.getArtifact("sources"))
-                    }
-                    if (/*deployment.type !== BuildType.LOCAL ||*/ module.hasArtifact("javadoc")) {
-                        javadoc(module.getArtifact("javadoc"))
-                    }
-
-                    module.platforms.forEach { platform ->
-                        if (/*deployment.type !== BuildType.LOCAL ||*/ module.hasArtifact(platform.classifier)) {
-                            native(module.getArtifact(platform.classifier), platform.os, platform.arch, platform.classifier)
-                        }
-                    }
-                }
-
-                create<MavenPublication>(moduleComponent.name) {
-                    artifactId = module.id
-                    from(moduleComponent)
-                }
-            }
-        }
-
         create<MavenPublication>("LwjglBom") {
-            from(components["javaPlatform"])
-            artifactId = "lwjgl-bom"
-
             pom {
                 withXml {
                     asElement().getElementsByTagName("dependencyManagement").item(0).apply {
@@ -82,3 +46,4 @@ dependencies {
         }
     }
 }
+*/

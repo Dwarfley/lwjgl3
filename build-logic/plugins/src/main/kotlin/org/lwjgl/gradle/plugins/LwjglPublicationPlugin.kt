@@ -136,12 +136,33 @@ open class LwjglPublicationExtension constructor(
     }
 
     fun createFromModule(action: Action<ModulePublication>) {
+        if(!isPresent()){
+            return
+        }
+
         val publication = ModulePublication()
 
         action.execute(publication)
 
         create(project.name.toPascalCase(), publication) {
+            artifactId = project.name
 
+            val component = softwareComponentFactory.adhoc("lwjglModule")
+
+            if (publicationType != PublicationType.LOCAL || hasArtifact("sources")) {
+                /*sources(getArtifact("sources"))*/
+            }
+            if (publicationType != PublicationType.LOCAL || hasArtifact("javadoc")) {
+                /*javadoc(getArtifact("javadoc"))*/
+            }
+
+            publication.platforms.forEach { platform, nativeRequirement ->
+                if (publicationType != PublicationType.LOCAL || hasArtifact(platform.classifier())) {
+                    /*native(getArtifact(platform.classifier()), platform.os, platform.arch, platform.classifier())*/
+                }
+            }
+
+            from(component)
         }
     }
 
@@ -151,7 +172,9 @@ open class LwjglPublicationExtension constructor(
         action.execute(publication)
 
         create(project.name.toPascalCase(), publication) {
+            artifactId = "lwjgl-bom"
 
+            from(project.components["javaPlatform"])
         }
     }
 
