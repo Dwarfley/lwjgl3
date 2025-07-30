@@ -168,15 +168,9 @@ class PlatformGroup internal constructor(
     internal fun forEach(action: (Platform) -> Unit) = platforms.forEach(action)
 }
 
-class NativeRequirement internal constructor(
+class NativeRequirement internal constructor()
 
-) {
-
-}
-
-class PlatformConfigurator internal constructor(
-
-) {
+class PlatformConfigurator internal constructor() {
     val FREEBSD_X64: Platform = Platform("freebsd", "x64")
     val LINUX_X64: Platform = Platform("linux", "x64")
     val LINUX_ARM64: Platform = Platform("linux", "arm64")
@@ -217,7 +211,7 @@ class PlatformConfigurator internal constructor(
     }
 }
 
-sealed class LwjglPublication {
+sealed class LwjglPublication protected constructor() {
     internal var title: String = ""
     internal var description: String = ""
 
@@ -230,7 +224,7 @@ sealed class LwjglPublication {
     }
 }
 
-class ModulePublication : LwjglPublication() {
+class ModulePublication internal constructor() : LwjglPublication() {
     internal val platforms: PlatformConfigurator = PlatformConfigurator()
 
     fun platforms(action: Action<PlatformConfigurator>) {
@@ -238,9 +232,7 @@ class ModulePublication : LwjglPublication() {
     }
 }
 
-class PlatformPublication : LwjglPublication() {
-
-}
+class PlatformPublication internal constructor() : LwjglPublication()
 
 internal enum class PublicationType {
     LOCAL,
