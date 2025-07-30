@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - xxHash bindings")
     description("An extremely fast hash algorithm, running at RAM speed limits.")
     platforms {

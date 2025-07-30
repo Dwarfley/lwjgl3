@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Shaderc bindings")
     description("A collection of libraries for shader compilation.")
     platforms {

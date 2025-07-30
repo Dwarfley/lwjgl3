@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Remotery bindings")
     description("A realtime CPU/GPU profiler hosted in a single C file with a viewer that runs in a web browser.")
     platforms {

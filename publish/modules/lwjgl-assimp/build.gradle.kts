@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Assimp bindings")
     description("A portable Open Source library to import various well-known 3D model formats in a uniform manner.")
     platforms {

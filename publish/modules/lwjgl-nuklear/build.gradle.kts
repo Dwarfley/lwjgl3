@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Nuklear bindings")
     description("A minimal state immediate mode graphical user interface toolkit.")
     platforms {

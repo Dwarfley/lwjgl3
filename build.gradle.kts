@@ -47,13 +47,11 @@ enum class Platform(
 
 enum class Module(
     val id: String,
-    val title: String,
-    val description: String,
     vararg val platforms: Platform
 ) {
 
     NONE(
-        "", "", "",
+        "id",
         *Platform.ALL
     );
 
@@ -76,12 +74,6 @@ enum class Module(
 
 publishing {
     publications {
-        fun MavenPom.setupPom(pomName: String, pomDescription: String, pomPackaging: String) {
-            name.set(pomName)
-            description.set(pomDescription)
-            packaging = pomPackaging
-        }
-
         Module.values().forEach { module ->
             if (module.isPresent) {
                 val moduleComponent = componentFactory.createComponent(module.id, module.getArtifact(), (project.version as String)) {
@@ -101,12 +93,7 @@ publishing {
 
                 create<MavenPublication>(moduleComponent.name) {
                     artifactId = module.id
-
                     from(moduleComponent)
-
-                    pom {
-                        setupPom(module.title, module.description, "jar")
-                    }
                 }
             }
         }
@@ -116,8 +103,6 @@ publishing {
             artifactId = "lwjgl-bom"
 
             pom {
-                setupPom("LWJGL BOM", "LWJGL 3 Bill of Materials.", "pom")
-
                 withXml {
                     asElement().getElementsByTagName("dependencyManagement").item(0).apply {
                         asElement().getElementsByTagName("dependencies").item(0).apply {

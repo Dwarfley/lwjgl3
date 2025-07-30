@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Yoga bindings")
     description("An open-source, cross-platform layout library that implements Flexbox.")
     platforms {

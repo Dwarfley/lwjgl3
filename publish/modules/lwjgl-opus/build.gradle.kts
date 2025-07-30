@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Opus bindings")
     description("A totally open, royalty-free, highly versatile audio codec.")
     platforms {

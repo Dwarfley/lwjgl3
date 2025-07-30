@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - OpenAL bindings")
     description("A cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications.")
     platforms {

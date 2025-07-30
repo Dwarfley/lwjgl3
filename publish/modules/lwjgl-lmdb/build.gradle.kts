@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - LMDB bindings")
     description("A compact, fast, powerful, and robust database that implements a simplified variant of the BerkeleyDB (BDB) API.")
     platforms {

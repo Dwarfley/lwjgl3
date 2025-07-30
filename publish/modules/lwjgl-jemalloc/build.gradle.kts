@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - jemalloc bindings")
     description("A general purpose malloc implementation that emphasizes fragmentation avoidance and scalable concurrency support.")
     platforms {

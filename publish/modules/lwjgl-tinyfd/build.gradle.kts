@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - Tiny File Dialogs bindings")
     description("Provides basic modal dialogs.")
     platforms {

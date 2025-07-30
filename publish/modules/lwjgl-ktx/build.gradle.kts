@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - KTX (Khronos Texture) bindings")
     description("A lightweight container for textures for OpenGL®, Vulkan® and other GPU APIs.")
     platforms {

@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - ODBC bindings")
     description("A C programming language interface that makes it possible for applications to access data from a variety of database management systems (DBMSs).")
     platforms {

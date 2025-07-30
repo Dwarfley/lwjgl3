@@ -6,6 +6,11 @@ package org.lwjgl.gradle.plugins
 
 import org.gradle.api.*
 import org.gradle.api.component.*
+import org.gradle.api.publish.*
+import org.gradle.api.publish.maven.*
+import org.gradle.api.publish.maven.plugins.*
+import org.gradle.kotlin.dsl.*
+import org.lwjgl.gradle.utils.*
 import javax.inject.*
 
 class Platform internal constructor(
@@ -67,22 +72,76 @@ class PlatformConfigurator internal constructor(
     }
 }
 
+sealed class LwjglPublication {
+    internal var title: String = ""
+    internal var description: String = ""
+
+    fun title(title: String) {
+        this.title = title
+    }
+
+    fun description(description: String) {
+        this.description = description
+    }
+}
+
+class ModulePublication : LwjglPublication() {
+    internal val platforms: PlatformConfigurator = PlatformConfigurator()
+
+    fun platforms(action: Action<PlatformConfigurator>) {
+        action.execute(this.platforms)
+    }
+}
+
+class PlatformPublication : LwjglPublication() {
+
+}
+
 open class LwjglPublicationExtension constructor(
     private val project: Project,
     private val softwareComponentFactory: SoftwareComponentFactory
 ) {
-    private val platformConfigurator: PlatformConfigurator = PlatformConfigurator()
+    private val pomActions = mutableListOf<Action<MavenPom>>()
 
-    fun title(title: String) {
-
+    fun pom(action: Action<MavenPom>) {
+        pomActions.add(action)
     }
 
-    fun description(description: String) {
+    fun createFromModule(action: Action<ModulePublication>) {
+        val publication = ModulePublication()
 
+        action.execute(publication)
+
+        create(project.name.toPascalCase(), publication) {
+
+        }
     }
 
-    fun platforms(action: Action<PlatformConfigurator>) {
-        action.execute(platformConfigurator)
+    fun createFromPlatform(action: Action<PlatformPublication>) {
+        val publication = PlatformPublication()
+
+        action.execute(publication)
+
+        create(project.name.toPascalCase(), publication) {
+
+        }
+    }
+
+    private fun create(name: String, publication: LwjglPublication, action: Action<MavenPublication>) {
+        project.extensions.configure<PublishingExtension> {
+            publications {
+                create<MavenPublication>(name) {
+                    action.execute(this)
+                    pom {
+                        this.name.set(publication.title)
+                        this.description.set(publication.description)
+                        pomActions.forEach { action ->
+                            action.execute(this)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -90,6 +149,8 @@ class LwjglPublicationPlugin @Inject constructor(
     private val softwareComponentFactory: SoftwareComponentFactory
 ) : Plugin<Project> {
     override fun apply(project: Project) {
+        project.pluginManager.apply(MavenPublishPlugin::class.java)
+
         project.extensions.create(
             LwjglPublicationExtension::class.java,
             "lwjglPublication",

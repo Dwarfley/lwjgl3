@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - FMOD bindings")
     description("An end-to-end solution for adding sound and music to any game.")
     platforms {

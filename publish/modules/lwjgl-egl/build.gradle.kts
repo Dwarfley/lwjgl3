@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - EGL bindings")
     description("An interface between Khronos rendering APIs such as OpenGL ES or OpenVG and the underlying native platform window system.")
     platforms {

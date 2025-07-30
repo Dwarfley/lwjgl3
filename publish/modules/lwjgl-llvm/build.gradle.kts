@@ -6,7 +6,7 @@ plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication {
+lwjglPublication.createFromModule {
     title("LWJGL - LLVM/Clang bindings")
     description("A collection of modular and reusable compiler and toolchain technologies.")
     platforms {
