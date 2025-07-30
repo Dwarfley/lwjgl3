@@ -106,11 +106,30 @@ class PlatformPublication : LwjglPublication() {
 
 }
 
+internal enum class PublicationType {
+    LOCAL,
+    SNAPSHOT,
+    RELEASE
+}
+
 open class LwjglPublicationExtension constructor(
     private val project: Project,
     private val softwareComponentFactory: SoftwareComponentFactory
 ) {
+    private var publicationType: PublicationType = PublicationType.LOCAL
     private val pomActions = mutableListOf<Action<MavenPom>>()
+
+    fun local(){
+        publicationType = PublicationType.LOCAL
+    }
+
+    fun snapshot(){
+        publicationType = PublicationType.SNAPSHOT
+    }
+
+    fun release(){
+        publicationType = PublicationType.RELEASE
+    }
 
     fun pom(action: Action<MavenPom>) {
         pomActions.add(action)

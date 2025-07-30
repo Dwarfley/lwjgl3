@@ -226,8 +226,14 @@ signing {
     sign(publishing.publications)
 }
 
-if(pomInfo != null){
-    lwjglPublication {
+
+lwjglPublication {
+    when(publishType) {
+        PublishType.LOCAL -> local()
+        PublishType.SNAPSHOT -> snapshot()
+        PublishType.RELEASE -> release()
+    }
+    if(pomInfo != null){
         pom {
             url.set(pomInfo.url)
 
