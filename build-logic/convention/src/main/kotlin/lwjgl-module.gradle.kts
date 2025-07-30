@@ -5,3 +5,9 @@
 plugins {
     id("lwjgl-publishing")
 }
+
+lwjglPublication {
+    pom {
+        packaging = "jar"
+    }
+}

@@ -10,18 +10,6 @@ plugins {
     id("lwjgl-component-factory")
 }
 
-val pomUrl: String by project
-val pomScmConnection: String by project
-val pomScmDeveloperConnection: String by project
-val pomScmUrl: String by project
-val pomLicenseName: String by project
-val pomLicenseUrl: String by project
-val pomLicenseDistribution: String by project
-val pomDeveloperId: String by project
-val pomDeveloperName: String by project
-val pomDeveloperEmail: String by project
-val pomDeveloperUrl: String by project
-
 buildDir = file("bin/MAVEN")
 
 enum class Platform(
@@ -91,31 +79,7 @@ publishing {
         fun MavenPom.setupPom(pomName: String, pomDescription: String, pomPackaging: String) {
             name.set(pomName)
             description.set(pomDescription)
-            url.set(pomUrl)
             packaging = pomPackaging
-
-            scm {
-                connection.set(pomScmConnection)
-                developerConnection.set(pomScmDeveloperConnection)
-                url.set(pomScmUrl)
-            }
-
-            licenses {
-                license {
-                    name.set(pomLicenseName)
-                    url.set(pomLicenseUrl)
-                    distribution.set(pomLicenseDistribution)
-                }
-            }
-
-            developers {
-                developer {
-                    id.set(pomDeveloperId)
-                    name.set(pomDeveloperName)
-                    email.set(pomDeveloperEmail)
-                    url.set(pomDeveloperUrl)
-                }
-            }
         }
 
         Module.values().forEach { module ->
