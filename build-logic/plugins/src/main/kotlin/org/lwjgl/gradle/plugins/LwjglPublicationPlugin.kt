@@ -6,7 +6,6 @@ package org.lwjgl.gradle.plugins
 
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
@@ -26,88 +25,58 @@ import java.io.*
 import javax.inject.*
 import kotlin.jvm.java
 
-internal enum class VariantType(
-    val containsJavaBinary: Boolean,
-    private val usage: String,
-    private val category: String,
-    private val bundling: String,
-    private val docsType: String?,
-    private val libraryElements: String?
-) {
-    COMPILE(true, Usage.JAVA_API, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    RUNTIME(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    NATIVE_COMPILE(true, Usage.JAVA_API, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    NATIVE_RUNTIME(true, Usage.JAVA_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    NATIVE_ONLY(false, Usage.NATIVE_RUNTIME, Category.LIBRARY, Bundling.EXTERNAL, null, LibraryElements.JAR),
-    JAVADOC(false, Usage.JAVA_RUNTIME, Category.DOCUMENTATION, Bundling.EXTERNAL, DocsType.JAVADOC, null),
-    SOURCES(false, Usage.JAVA_RUNTIME, Category.DOCUMENTATION, Bundling.EXTERNAL, DocsType.SOURCES, null);
-
-    fun applyAttributes(objects: ObjectFactory, configuration: Configuration) {
-        configuration.attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, usage))
-            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class.java, category))
-            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling::class.java, bundling))
-            docsType?.let {
-                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType::class.java, it))
-            }
-            libraryElements?.let {
-                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements::class.java, it))
-            }
-        }
-    }
-}
-
 internal class ComponentConfigurator constructor(
     private val project: Project,
+    private val objects: ObjectFactory,
     private val component: AdhocComponentWithVariants,
 ) {
     fun main(artifact: File) {
-        createConfiguration("Api", VariantType.COMPILE) {
+        createMainVariant("api", "compile") {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, Usage.JAVA_API))
+            }
             outgoing.artifact(artifact)
         }
-        createConfiguration("Runtime", VariantType.RUNTIME) {
+        createMainVariant("runtime", "runtime") {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
+            }
             outgoing.artifact(artifact)
         }
     }
 
     fun native(os: String, arch: String) {
-
+        native(null, os, arch, null)
     }
 
-    fun native(artifact: File, os: String, arch: String, classifier: String) {
-        val platform = "${os.toPascalCase()}${arch.toPascalCase()}"
-
-        fun addAttributes(configuration: Configuration) {
-            configuration.attributes {
-                attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, project.objects.named(OperatingSystemFamily::class.java, os))
-                attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, project.objects.named(MachineArchitecture::class.java, arch))
+    fun native(artifact: File?, os: String, arch: String, classifier: String?) {
+        createNativeVariant("api", os, arch) {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, Usage.JAVA_API))
+            }
+            if(artifact != null && classifier != null){
+                outgoing.artifact(artifact){
+                    this.classifier = classifier
+                }
             }
         }
-
-        createConfiguration("${platform}Api", VariantType.NATIVE_COMPILE) {
-            addAttributes(this)
-            /*outgoing.artifact(mainArtifact)*/
-            outgoing.artifact(artifact) {
-                this.classifier = classifier
+        createNativeVariant("runtime", os, arch) {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
             }
-        }
-        createConfiguration("${platform}Runtime", VariantType.NATIVE_RUNTIME) {
-            addAttributes(this)
-            /*outgoing.artifact(mainArtifact)*/
-            outgoing.artifact(artifact) {
-                this.classifier = classifier
-            }
-        }
-        createConfiguration("${platform}Native", VariantType.NATIVE_ONLY) {
-            addAttributes(this)
-            outgoing.artifact(artifact) {
-                this.classifier = classifier
+            if(artifact != null && classifier != null){
+                outgoing.artifact(artifact){
+                    this.classifier = classifier
+                }
             }
         }
     }
 
     fun sources(artifact: File) {
-        createConfiguration("Sources", VariantType.SOURCES) {
+        createDocumentationVariant("sources") {
+            attributes {
+                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType::class.java, DocsType.SOURCES))
+            }
             outgoing.artifact(artifact) {
                 this.classifier = "sources"
             }
@@ -115,36 +84,67 @@ internal class ComponentConfigurator constructor(
     }
 
     fun javadoc(artifact: File) {
-        createConfiguration("Javadoc", VariantType.JAVADOC) {
+        createDocumentationVariant("javadoc") {
+            attributes {
+                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType::class.java, DocsType.JAVADOC))
+            }
             outgoing.artifact(artifact) {
                 this.classifier = "javadoc"
             }
         }
     }
 
-    private fun createConfiguration(name: String, type: VariantType, configAction: Action<Configuration>) {
-        val configuration = project.configurations.create("${project.name.toCamelCase()}${name}Elements") {
+    private fun createMainVariant(name: String, mavenScope: String, action: Action<Configuration>) {
+        createVariant(name, mavenScope){
+            attributes {
+                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class.java, Category.LIBRARY))
+                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling::class.java, Bundling.EXTERNAL))
+                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements::class.java, LibraryElements.JAR))
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+            }
+            if (project.name != "lwjgl") {
+                dependencies.add(project.dependencies.create("${project.group}:lwjgl:${project.version}"))
+            }
+            action.execute(this)
+        }
+    }
+
+    private fun createNativeVariant(name: String, os: String, arch: String, action: Action<Configuration>) {
+        createVariant("${os.toCamelCase()}${arch.toPascalCase()}${name.toPascalCase()}"){
+            attributes {
+                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class.java, Category.LIBRARY))
+                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling::class.java, Bundling.EXTERNAL))
+                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements::class.java, LibraryElements.JAR))
+                attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, project.objects.named(OperatingSystemFamily::class.java, os))
+                attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, project.objects.named(MachineArchitecture::class.java, arch))
+            }
+            outgoing.capability("${project.group}:${project.name}-native:${project.version}")
+            action.execute(this)
+        }
+    }
+
+    private fun createDocumentationVariant(name: String, action: Action<Configuration>) {
+        createVariant(name){
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
+                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class.java, Category.DOCUMENTATION))
+                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling::class.java, Bundling.EXTERNAL))
+            }
+            action.execute(this)
+        }
+    }
+
+    private fun createVariant(name: String, mavenScope: String? = null, configAction: Action<Configuration>) {
+        val configuration = project.configurations.create("${name}Elements") {
             isCanBeResolved = false
             isCanBeConsumed = true
-            attributes {
-                if (type.containsJavaBinary) {
-                    attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
-                }
-                attribute(Attribute.of("org.lwjgl.module", String::class.java), project.name)
-            }
-            type.applyAttributes(project.objects, this)
-            if (project.name != "lwjgl" && type.containsJavaBinary) {
-                dependencies.add(project.dependencies.create("org.lwjgl:lwjgl:${project.version}"))
-            }
         }
 
         configAction.execute(configuration)
 
         component.addVariantsFromConfiguration(configuration) {
-            if (type == VariantType.COMPILE) {
-                mapToMavenScope("compile")
-            } else if (type == VariantType.RUNTIME) {
-                mapToMavenScope("runtime")
+            if (mavenScope != null) {
+                mapToMavenScope(mavenScope)
             }
         }
     }
@@ -275,7 +275,7 @@ open class LwjglPublicationExtension constructor(
         createMavenPublication(project.name.toPascalCase(), publication) {
             artifactId = project.name
 
-            val component = createComponent(){
+            val component = createComponent {
                 val isLocal = publicationType == PublicationType.LOCAL
 
                 main(getArtifact())
@@ -316,7 +316,7 @@ open class LwjglPublicationExtension constructor(
 
     private fun createComponent(action: Action<ComponentConfigurator>): AdhocComponentWithVariants {
         val component = softwareComponentFactory.adhoc("lwjgl")
-        val configurator = ComponentConfigurator(project, component)
+        val configurator = ComponentConfigurator(project, project.objects, component)
 
         action.execute(configurator)
 
