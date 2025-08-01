@@ -114,7 +114,7 @@ internal class ComponentConfigurator constructor(
                 }
             }
             moduleDependencies.forEach { module ->
-                add(configurationName(name), "${project.group}:${module}:${project.version}")
+                add(configurationName(name), project(":modules:${module}"))
             }
         }
     }
