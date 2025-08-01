@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - msdfgen bindings")
     description("Multi-channel signed distance field generator.")
+    dependsOn("lwjgl")
     platforms {
         platform(ALL, NATIVE_REQUIRED)
     }

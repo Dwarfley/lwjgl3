@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - Tiny File Dialogs bindings")
     description("Provides basic modal dialogs.")
+    dependsOn("lwjgl")
     platforms {
         platform(ALL, NATIVE_REQUIRED)
     }

@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - JAWT bindings")
     description("The AWT native interface.")
+    dependsOn("lwjgl")
     platforms {
         platform(ALL, NATIVE_OPTIONAL)
     }

@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - stb bindings")
     description("Single-file public domain libraries for fonts, images, ogg vorbis files and more.")
+    dependsOn("lwjgl")
     platforms {
         platform(ALL, NATIVE_REQUIRED)
     }

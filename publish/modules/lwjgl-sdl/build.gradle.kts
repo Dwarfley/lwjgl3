@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - SDL bindings")
     description("Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware.")
+    dependsOn("lwjgl")
     platforms {
         platform(ALL, NATIVE_REQUIRED)
     }

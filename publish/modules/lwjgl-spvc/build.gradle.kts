@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - SPIRV-Cross bindings")
     description("A library for performing reflection on SPIR-V and disassembling SPIR-V back to high level languages.")
+    dependsOn("lwjgl")
     platforms {
         platform(ALL, NATIVE_REQUIRED)
     }

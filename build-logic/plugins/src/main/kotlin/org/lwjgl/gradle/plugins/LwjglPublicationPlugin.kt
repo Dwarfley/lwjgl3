@@ -29,6 +29,7 @@ internal class ComponentConfigurator constructor(
     private val project: Project,
     private val objects: ObjectFactory,
     private val component: AdhocComponentWithVariants,
+    private val moduleDependencies: MutableList<String>,
 ) {
     private val nativeCapability: String = "${project.group}:${project.name}-native:${project.version}"
 
@@ -112,8 +113,8 @@ internal class ComponentConfigurator constructor(
                     requireCapability(nativeCapability)
                 }
             }
-            if (project.name != "lwjgl") {
-                add(configurationName(name), "${project.group}:lwjgl:${project.version}")
+            moduleDependencies.forEach { module ->
+                add(configurationName(name), "${project.group}:${module}:${project.version}")
             }
         }
     }
@@ -238,7 +239,12 @@ sealed class LwjglPublication protected constructor() {
 }
 
 class ModulePublication internal constructor() : LwjglPublication() {
+    internal val moduleDependencies = mutableListOf<String>()
     internal val platforms: PlatformConfigurator = PlatformConfigurator()
+
+    fun dependsOn(module: String) {
+        moduleDependencies.add(module)
+    }
 
     fun platforms(action: Action<PlatformConfigurator>) {
         action.execute(this.platforms)
@@ -289,8 +295,8 @@ open class LwjglPublicationExtension constructor(
             artifactId = project.name
 
             suppressAllPomMetadataWarnings()
-            
-            val component = createComponent {
+
+            val component = createComponent(publication.moduleDependencies) {
                 val isLocal = publicationType == PublicationType.LOCAL
 
                 main(getArtifact())
@@ -329,9 +335,9 @@ open class LwjglPublicationExtension constructor(
         }
     }
 
-    private fun createComponent(action: Action<ComponentConfigurator>): AdhocComponentWithVariants {
+    private fun createComponent(moduleDependencies: MutableList<String>, action: Action<ComponentConfigurator>): AdhocComponentWithVariants {
         val component = softwareComponentFactory.adhoc("lwjgl")
-        val configurator = ComponentConfigurator(project, project.objects, component)
+        val configurator = ComponentConfigurator(project, project.objects, component, moduleDependencies)
 
         action.execute(configurator)
 

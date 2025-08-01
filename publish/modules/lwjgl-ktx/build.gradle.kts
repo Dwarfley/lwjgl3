@@ -9,6 +9,7 @@ plugins {
 lwjglPublication.createFromModule {
     title("LWJGL - KTX (Khronos Texture) bindings")
     description("A lightweight container for textures for OpenGL®, Vulkan® and other GPU APIs.")
+    dependsOn("lwjgl")
     platforms {
         platform(FREEBSD, NATIVE_REQUIRED)
         platform(LINUX, NATIVE_REQUIRED)
