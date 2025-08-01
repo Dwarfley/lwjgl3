@@ -291,35 +291,58 @@ open class LwjglPublicationExtension constructor(
             return
         }
 
+        val isLocal = publicationType == PublicationType.LOCAL
+
+        val nativeArtifacts = mutableListOf<String>()
+
+        publication.platforms.forEach { platform, isNativeRequired ->
+            if (!isLocal || hasArtifact(platform.classifier())) {
+                if(isNativeRequired){
+                    nativeArtifacts.add("${project.group}:${project.name}:${project.version}:${platform.classifier()}")
+                }
+            }
+        }
+
+        val component = createComponent(publication.moduleDependencies) {
+            main(getArtifact())
+
+            if (!isLocal || hasArtifact("sources")) {
+                sources(getArtifact("sources"))
+            }
+            if (!isLocal || hasArtifact("javadoc")) {
+                javadoc(getArtifact("javadoc"))
+            }
+
+            publication.platforms.forEach { platform, isNativeRequired ->
+                if (!isLocal || hasArtifact(platform.classifier())) {
+                    if(isNativeRequired){
+                        native(getArtifact(platform.classifier()), platform.os, platform.arch, platform.classifier())
+                    }else{
+                        native(platform.os, platform.arch)
+                    }
+                }
+            }
+        }
+
         createMavenPublication(project.name.toPascalCase(), publication) {
             artifactId = project.name
 
             suppressAllPomMetadataWarnings()
 
-            val component = createComponent(publication.moduleDependencies) {
-                val isLocal = publicationType == PublicationType.LOCAL
-
-                main(getArtifact())
-
-                if (!isLocal || hasArtifact("sources")) {
-                    sources(getArtifact("sources"))
-                }
-                if (!isLocal || hasArtifact("javadoc")) {
-                    javadoc(getArtifact("javadoc"))
-                }
-
-                publication.platforms.forEach { platform, isNativeRequired ->
-                    if (!isLocal || hasArtifact(platform.classifier())) {
-                        if(isNativeRequired){
-                            native(getArtifact(platform.classifier()), platform.os, platform.arch, platform.classifier())
-                        }else{
-                            native(platform.os, platform.arch)
-                        }
-                    }
-                }
-            }
-
             from(component)
+        }
+
+        project.tasks.register("generateMetadata"){
+            val outputFile = project.layout.buildDirectory.file("generated/metadata.txt")
+            val text = nativeArtifacts.joinToString("\n")
+
+            outputs.file(outputFile)
+
+            doLast {
+                val file = outputFile.get().asFile
+                file.parentFile.mkdirs()
+                file.writeText(text)
+            }
         }
     }
 
