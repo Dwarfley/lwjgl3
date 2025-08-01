@@ -30,6 +30,8 @@ internal class ComponentConfigurator constructor(
     private val objects: ObjectFactory,
     private val component: AdhocComponentWithVariants,
 ) {
+    private val nativeCapability: String = "${project.group}:${project.name}-native:${project.version}"
+
     fun main(artifact: File) {
         createMainVariant("api", "compile") {
             attributes {
@@ -102,10 +104,17 @@ internal class ComponentConfigurator constructor(
                 attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements::class.java, LibraryElements.JAR))
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
             }
-            if (project.name != "lwjgl") {
-                dependencies.add(project.dependencies.create("${project.group}:lwjgl:${project.version}"))
-            }
             action.execute(this)
+        }
+        project.dependencies{
+            add(configurationName(name), "${project.group}:${project.name}:${project.version}") {
+                capabilities {
+                    requireCapability(nativeCapability)
+                }
+            }
+            if (project.name != "lwjgl") {
+                add(configurationName(name), "${project.group}:lwjgl:${project.version}")
+            }
         }
     }
 
@@ -118,7 +127,7 @@ internal class ComponentConfigurator constructor(
                 attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, project.objects.named(OperatingSystemFamily::class.java, os))
                 attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, project.objects.named(MachineArchitecture::class.java, arch))
             }
-            outgoing.capability("${project.group}:${project.name}-native:${project.version}")
+            outgoing.capability(nativeCapability)
             action.execute(this)
         }
     }
@@ -135,7 +144,7 @@ internal class ComponentConfigurator constructor(
     }
 
     private fun createVariant(name: String, mavenScope: String? = null, configAction: Action<Configuration>) {
-        val configuration = project.configurations.create("${name}Elements") {
+        val configuration = project.configurations.create(configurationName(name)) {
             isCanBeResolved = false
             isCanBeConsumed = true
         }
@@ -147,6 +156,10 @@ internal class ComponentConfigurator constructor(
                 mapToMavenScope(mavenScope)
             }
         }
+    }
+
+    private fun configurationName(name: String): String {
+        return "${name}Elements"
     }
 }
 
@@ -275,6 +288,8 @@ open class LwjglPublicationExtension constructor(
         createMavenPublication(project.name.toPascalCase(), publication) {
             artifactId = project.name
 
+            suppressAllPomMetadataWarnings()
+            
             val component = createComponent {
                 val isLocal = publicationType == PublicationType.LOCAL
 
