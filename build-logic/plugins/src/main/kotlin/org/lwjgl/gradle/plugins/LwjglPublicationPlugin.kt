@@ -332,7 +332,7 @@ open class LwjglPublicationExtension constructor(
             from(component)
         }
 
-        project.tasks.register("generateMetadata"){
+        project.tasks.named("generateMetadata") {
             val outputFile = project.layout.buildDirectory.file("generated/metadata.txt")
             val text = nativeArtifacts.joinToString("\n")
 
@@ -420,5 +420,7 @@ class LwjglPublicationPlugin @Inject constructor(
             project,
             softwareComponentFactory
         )
+
+        project.tasks.register("generateMetadata")
     }
 }
