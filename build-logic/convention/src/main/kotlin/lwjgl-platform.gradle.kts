@@ -38,20 +38,20 @@ class NativeArtifact(
     val classifier: String,
 )
 
-val nativeArtifacts = mutableListOf<NativeArtifact>()
+tasks.withType<GenerateMavenPom>().configureEach {
+    doLast {
+        val nativeArtifacts = mutableListOf<NativeArtifact>()
 
-metadataConfiguration.resolve().forEach { file ->
-    file.readLines().forEach { line ->
-        val parts = line.split(":")
-        val id = parts[1]
-        val classifier = parts[3]
-        nativeArtifacts.add(NativeArtifact(id, classifier))
-    }
-}
+        metadataConfiguration.resolve().forEach { file ->
+            file.readLines().forEach { line ->
+                val parts = line.split(":")
+                val id = parts[1]
+                val classifier = parts[3]
+                nativeArtifacts.add(NativeArtifact(id, classifier))
+            }
+        }
 
-lwjglPublication {
-    pom {
-        withXml {
+        pom.withXml {
             asElement().getElementsByTagName("dependencyManagement").item(0).apply {
                 asElement().getElementsByTagName("dependencies").item(0).apply {
                     nativeArtifacts.forEach { artifact ->
