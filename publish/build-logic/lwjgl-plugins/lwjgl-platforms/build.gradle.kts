@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":utils"))
+    implementation(project(":lwjgl-utils"))
 }
 
 gradlePlugin {
