@@ -16,8 +16,10 @@ repositories {
     mavenCentral()
 }
 
+val pluginProjects = project(":lwjgl-plugins").subprojects
+
 dependencies {
-    project(":lwjgl-plugins").subprojects.forEach { pluginProject ->
+    pluginProjects.forEach { pluginProject ->
         implementation(pluginProject)
     }
 }
