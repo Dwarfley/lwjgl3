@@ -4,19 +4,19 @@
  */
 rootProject.name = "root"
 
-includeBuild("build-logic")
+includeBuild("publish/build-logic")
 
-include("modules")
-project(":modules").projectDir = file("publish/modules")
+include("lwjgl-modules")
+project(":lwjgl-modules").projectDir = file("publish/lwjgl-modules")
 
-include("platform")
-project(":platform").projectDir = file("publish/platform")
+include("lwjgl-bom")
+project(":lwjgl-bom").projectDir = file("publish/lwjgl-bom")
 
-val modulesDir = file("publish/modules/")
+val modulesDir = project(":lwjgl-modules").projectDir
 
 if (modulesDir.exists() && modulesDir.isDirectory) {
     modulesDir.listFiles { file -> file.isDirectory }.forEach { dir ->
-        include("modules:${dir.name}")
-        project(":modules:${dir.name}").projectDir = dir
+        include("lwjgl-modules:${dir.name}")
+        project(":lwjgl-modules:${dir.name}").projectDir = dir
     }
 }
