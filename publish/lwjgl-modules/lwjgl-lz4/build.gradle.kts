@@ -1,16 +1,20 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(ALL, NATIVE_REQUIRED)
+}
+
+dependencies {
+    implementation(project(":lwjgl-modules:lwjgl"))
+}
+
+lwjglPublication.create {
     title("LWJGL - LZ4 bindings")
     description("A lossless data compression algorithm that is focused on compression and decompression speed.")
-    dependsOn("lwjgl")
-    platforms {
-        platform(ALL, NATIVE_REQUIRED)
-    }
 }

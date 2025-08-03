@@ -1,16 +1,20 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(ALL, NATIVE_REQUIRED)
+}
+
+dependencies {
+    implementation(project(":lwjgl-modules:lwjgl"))
+}
+
+lwjglPublication.create {
     title("LWJGL - NanoVG & NanoSVG bindings")
     description("A small antialiased vector graphics rendering library for OpenGL. Also includes NanoSVG, a simple SVG parser.")
-    dependsOn("lwjgl")
-    platforms {
-        platform(ALL, NATIVE_REQUIRED)
-    }
 }

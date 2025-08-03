@@ -1,15 +1,16 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(ALL, NATIVE_REQUIRED)
+}
+
+lwjglPublication.create {
     title("LWJGL")
     description("The LWJGL core library.")
-    platforms {
-        platform(ALL, NATIVE_REQUIRED)
-    }
 }

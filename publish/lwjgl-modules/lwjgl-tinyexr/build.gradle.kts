@@ -1,16 +1,20 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(ALL, NATIVE_REQUIRED)
+}
+
+dependencies {
+    implementation(project(":lwjgl-modules:lwjgl"))
+}
+
+lwjglPublication.create {
     title("LWJGL - Tiny OpenEXR bindings")
     description("A small library to load and save OpenEXR(.exr) images.")
-    dependsOn("lwjgl")
-    platforms {
-        platform(ALL, NATIVE_REQUIRED)
-    }
 }

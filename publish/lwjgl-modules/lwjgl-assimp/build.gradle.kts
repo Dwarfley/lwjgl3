@@ -1,16 +1,20 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(ALL, NATIVE_REQUIRED)
+}
+
+dependencies {
+    implementation(project(":lwjgl-modules:lwjgl"))
+}
+
+lwjglPublication.create {
     title("LWJGL - Assimp bindings")
     description("A portable Open Source library to import various well-known 3D model formats in a uniform manner.")
-    dependsOn("lwjgl")
-    platforms {
-        platform(ALL, NATIVE_REQUIRED)
-    }
 }

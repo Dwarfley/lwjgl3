@@ -1,16 +1,20 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(ALL, NATIVE_REQUIRED)
+}
+
+dependencies {
+    implementation(project(":lwjgl-modules:lwjgl"))
+}
+
+lwjglPublication.create {
     title("LWJGL - LLVM/Clang bindings")
     description("A collection of modular and reusable compiler and toolchain technologies.")
-    dependsOn("lwjgl")
-    platforms {
-        platform(ALL, NATIVE_REQUIRED)
-    }
 }

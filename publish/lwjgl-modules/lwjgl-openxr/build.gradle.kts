@@ -1,18 +1,22 @@
 /*
-* Copyright LWJGL. All rights reserved.
+ * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPublication.createFromModule {
+lwjglPlatforms {
+    addSupport(FREEBSD, NATIVE_REQUIRED)
+    addSupport(LINUX, NATIVE_REQUIRED)
+    addSupport(WINDOWS, NATIVE_REQUIRED)
+}
+
+dependencies {
+    implementation(project(":lwjgl-modules:lwjgl"))
+}
+
+lwjglPublication.create {
     title("LWJGL - OpenXR bindings")
     description("A royalty-free, open standard that provides high-performance access to Augmented Reality (AR) and Virtual Reality (VR)—collectively known as XR—platforms and devices.")
-    dependsOn("lwjgl")
-    platforms {
-        platform(FREEBSD, NATIVE_REQUIRED)
-        platform(LINUX, NATIVE_REQUIRED)
-        platform(WINDOWS, NATIVE_REQUIRED)
-    }
 }
