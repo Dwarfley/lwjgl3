@@ -27,7 +27,7 @@ class LwjglPublication internal constructor() {
 open class LwjglPublicationExtension(
     private val project: Project
 ) {
-    private val actions = mutableListOf<(MavenPublication) -> Unit>()
+    private val actions = mutableListOf<Action<MavenPublication>>()
 
     fun create(action: Action<LwjglPublication>) {
         val publication = LwjglPublication()
@@ -43,14 +43,14 @@ open class LwjglPublicationExtension(
                     }
 
                     actions.forEach { action ->
-                        action.invoke(this)
+                        action.execute(this)
                     }
                 }
             }
         }
     }
 
-    fun all(action: (MavenPublication) -> Unit) {
+    fun all(action: Action<MavenPublication>) {
         actions.add(action)
     }
 }
