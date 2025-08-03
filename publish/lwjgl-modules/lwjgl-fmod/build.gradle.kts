@@ -1,20 +1,16 @@
 /*
- * Copyright LWJGL. All rights reserved.
+* Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPlatforms {
-    addSupport(ALL, NATIVE_OPTIONAL)
-}
-
-dependencies {
-    implementation(project(":lwjgl-modules:lwjgl"))
-}
-
-lwjglPublication.create {
+lwjglPublication.createFromModule {
     title("LWJGL - FMOD bindings")
     description("An end-to-end solution for adding sound and music to any game.")
+    dependsOn("lwjgl")
+    platforms {
+        platform(ALL, NATIVE_OPTIONAL)
+    }
 }

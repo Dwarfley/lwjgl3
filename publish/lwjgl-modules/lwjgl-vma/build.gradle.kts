@@ -1,20 +1,16 @@
 /*
- * Copyright LWJGL. All rights reserved.
+* Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPlatforms {
-    addSupport(ALL, NATIVE_REQUIRED)
-}
-
-dependencies {
-    implementation(project(":lwjgl-modules:lwjgl"))
-}
-
-lwjglPublication.create {
+lwjglPublication.createFromModule {
     title("LWJGL - Vulkan Memory Allocator bindings")
     description("An easy to integrate Vulkan memory allocation library.")
+    dependsOn("lwjgl")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
 }

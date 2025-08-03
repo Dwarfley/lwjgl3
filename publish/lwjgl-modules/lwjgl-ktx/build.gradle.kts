@@ -1,24 +1,20 @@
 /*
- * Copyright LWJGL. All rights reserved.
+* Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPlatforms {
-    addSupport(FREEBSD, NATIVE_REQUIRED)
-    addSupport(LINUX, NATIVE_REQUIRED)
-    addSupport(MACOS, NATIVE_REQUIRED)
-    addSupport(WINDOWS_X64, NATIVE_REQUIRED)
-    addSupport(WINDOWS_ARM64, NATIVE_REQUIRED)
-}
-
-dependencies {
-    implementation(project(":lwjgl-modules:lwjgl"))
-}
-
-lwjglPublication.create {
+lwjglPublication.createFromModule {
     title("LWJGL - KTX (Khronos Texture) bindings")
     description("A lightweight container for textures for OpenGL®, Vulkan® and other GPU APIs.")
+    dependsOn("lwjgl")
+    platforms {
+        platform(FREEBSD, NATIVE_REQUIRED)
+        platform(LINUX, NATIVE_REQUIRED)
+        platform(MACOS, NATIVE_REQUIRED)
+        platform(WINDOWS_X64, NATIVE_REQUIRED)
+        platform(WINDOWS_ARM64, NATIVE_REQUIRED)
+    }
 }

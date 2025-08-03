@@ -1,20 +1,16 @@
 /*
- * Copyright LWJGL. All rights reserved.
+* Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
 plugins {
     id("lwjgl-module")
 }
 
-lwjglPlatforms {
-    addSupport(ALL, NATIVE_REQUIRED)
-}
-
-dependencies {
-    implementation(project(":lwjgl-modules:lwjgl"))
-}
-
-lwjglPublication.create {
+lwjglPublication.createFromModule {
     title("LWJGL - GLFW bindings")
     description("A multi-platform library for OpenGL, OpenGL ES and Vulkan development on the desktop. It provides a simple API for creating windows, contexts and surfaces, receiving input and events.")
+    dependsOn("lwjgl")
+    platforms {
+        platform(ALL, NATIVE_REQUIRED)
+    }
 }
