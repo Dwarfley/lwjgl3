@@ -27,12 +27,23 @@ class LwjglPublication internal constructor() {
 open class LwjglPublicationExtension(
     private val project: Project
 ) {
-    private val publications = mutableListOf<MavenPublication>()
+    var isLocal: Boolean = false
+    var isEnabled: Boolean = true
+
+    private val pomActions = mutableListOf<Action<MavenPom>>()
+
+    private val publicationList = mutableListOf<MavenPublication>()
     private val actions = mutableListOf<Action<MavenPublication>>()
 
     fun create(action: Action<LwjglPublication>) {
+        if(!isEnabled){
+            return
+        }
+
         val publication = LwjglPublication()
+
         action.execute(publication)
+
         project.extensions.configure<PublishingExtension> {
             publications {
                 create<MavenPublication>(project.name.toPascalCase()) {
@@ -41,9 +52,13 @@ open class LwjglPublicationExtension(
                     pom {
                         name.set(publication.title)
                         description.set(publication.description)
+
+                        pomActions.forEach { action ->
+                            action.execute(this)
+                        }
                     }
 
-                    publications.add(this)
+                    publicationList.add(this)
                     actions.forEach { action ->
                         action.execute(this)
                     }
@@ -52,9 +67,13 @@ open class LwjglPublicationExtension(
         }
     }
 
+    fun pom(action: Action<MavenPom>) {
+        pomActions.add(action)
+    }
+
     fun all(action: Action<MavenPublication>) {
         actions.add(action)
-        publications.forEach { publication ->
+        publicationList.forEach { publication ->
             action.execute(publication)
         }
     }

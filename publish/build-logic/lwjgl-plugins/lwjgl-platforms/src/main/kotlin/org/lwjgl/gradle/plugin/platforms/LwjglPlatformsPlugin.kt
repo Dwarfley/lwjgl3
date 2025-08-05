@@ -48,11 +48,11 @@ open class LwjglPlatformsExtension {
     val NATIVE_REQUIRED: NativeRequirement = NativeRequirement()
     val NATIVE_OPTIONAL: NativeRequirement = NativeRequirement()
 
-    private val platforms = mutableMapOf<Platform, NativeRequirement>()
+    private val platformMap = mutableMapOf<Platform, NativeRequirement>()
     private val actions = mutableListOf<(Platform, Boolean) -> Unit>()
 
     fun addSupport(platform: Platform, nativeRequirement: NativeRequirement) {
-        platforms.put(platform, nativeRequirement)
+        platformMap.put(platform, nativeRequirement)
         actions.forEach { action ->
             action.invoke(platform, nativeRequirement == NATIVE_REQUIRED)
         }
@@ -66,7 +66,7 @@ open class LwjglPlatformsExtension {
 
     fun all(action: (Platform, Boolean) -> Unit) {
         actions.add(action)
-        platforms.forEach { platform, nativeRequirement ->
+        platformMap.forEach { platform, nativeRequirement ->
             action.invoke(platform, nativeRequirement == NATIVE_REQUIRED)
         }
     }

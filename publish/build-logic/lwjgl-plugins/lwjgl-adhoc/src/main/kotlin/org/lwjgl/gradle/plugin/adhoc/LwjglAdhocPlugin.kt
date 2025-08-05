@@ -117,7 +117,7 @@ class LwjglConfigurations internal constructor(
     }
 
     private fun createDocumention(name: String, docsType: String): Configuration {
-        return createConfiguration("javadoc/sourcesElements", ConfigurationType.CONSUMABLE) {
+        return createConfiguration(name, ConfigurationType.CONSUMABLE) {
             attributes {
                 attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
                 attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class.java, Category.DOCUMENTATION))
