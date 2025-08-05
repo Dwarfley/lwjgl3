@@ -30,8 +30,8 @@ val isLocal = lwjglPublication.isLocal
 
 lwjglPublication.isEnabled = isPresent
 
-if (isPresent && hasArtifact("")) {
-    lwjglAdhoc.main(getArtifact(""))
+if (isPresent) {
+    lwjglAdhoc.main(getArtifact())
 }
 
 if (isPresent && (!isLocal || hasArtifact("javadoc"))) {
