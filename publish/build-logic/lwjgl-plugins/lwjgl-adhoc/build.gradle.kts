@@ -22,9 +22,9 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("lwjglComponent") {
-            id = "lwjgl-component"
-            implementationClass = "org.lwjgl.gradle.plugin.component.LwjglComponentPlugin"
+        create("lwjglAdhoc") {
+            id = "lwjgl-adhoc"
+            implementationClass = "org.lwjgl.gradle.plugin.adhoc.LwjglAdhocPlugin"
         }
     }
 }
