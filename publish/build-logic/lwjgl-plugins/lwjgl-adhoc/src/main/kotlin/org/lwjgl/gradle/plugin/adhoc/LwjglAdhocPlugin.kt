@@ -86,15 +86,15 @@ class LwjglConfigurations internal constructor(
     }
 
     internal fun createPlatformApi(os: String, arch: String): Configuration {
-        return createPlatform("${os.toCamelCase()}${arch.toPascalCase()}ApiElements", os, arch, Usage.JAVA_API)
+        return createPlatform("api", os, arch, Usage.JAVA_API)
     }
 
     internal fun createPlatformRuntime(os: String, arch: String): Configuration {
-        return createPlatform("${os.toCamelCase()}${arch.toPascalCase()}RuntimeElements", os, arch, Usage.JAVA_RUNTIME)
+        return createPlatform("runtime", os, arch, Usage.JAVA_RUNTIME)
     }
 
     private fun createPlatform(name: String, os: String, arch: String, usage: String): Configuration {
-        return createConfiguration(name, ConfigurationType.CONSUMABLE) {
+        return createConfiguration("${os.toCamelCase()}${arch.toPascalCase()}${name.toPascalCase()}Elements", ConfigurationType.CONSUMABLE) {
             attributes {
                 attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, usage))
                 attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class.java, Category.LIBRARY))
@@ -142,7 +142,12 @@ open class LwjglAdhocExtension(
     private val component: LwjglComponent
 ) {
     fun main(artifact: File) {
-        listOf(configurations.apiElementsConfig, configurations.runtimeElementsConfig).forEach { configuration ->
+        val configurations = listOf(
+            configurations.apiElementsConfig,
+            configurations.runtimeElementsConfig
+        )
+
+        configurations.forEach { configuration ->
             configuration.outgoing.artifact(artifact)
             project.dependencies {
                 add(configuration.name, projectDependency(project)) {
@@ -154,33 +159,46 @@ open class LwjglAdhocExtension(
         }
     }
 
-    fun platform(os: String, arch: String, artifact: File? = null) {
-        val apiConfiguration = configurations.createPlatformApi(os, arch)
-        val runtimeConfiguration = configurations.createPlatformRuntime(os, arch)
+    fun platform(os: String, arch: String, classifier: String, artifact: File? = null) {
+        val configurations = listOf(
+            configurations.createPlatformApi(os, arch),
+            configurations.createPlatformRuntime(os, arch)
+        )
 
-        if (artifact != null) {
-            apiConfiguration.outgoing.artifact(artifact)
-            runtimeConfiguration.outgoing.artifact(artifact)
+        configurations.forEach { configuration ->
+            if (artifact != null) {
+                configuration.outgoing.artifact(artifact) {
+                    this.classifier = classifier
+                }
+            }
+            component.addVariant(configuration)
         }
-
-        component.addVariant(apiConfiguration)
-        component.addVariant(runtimeConfiguration)
     }
 
     fun javadoc(artifact: File) {
-        val configuration = configurations.createDocumentionJavadoc()
+        val configurations = listOf(
+            configurations.createDocumentionJavadoc()
+        )
 
-        configuration.outgoing.artifact(artifact)
-
-        component.addVariant(configuration)
+        configurations.forEach { configuration ->
+            configuration.outgoing.artifact(artifact) {
+                this.classifier = "javadoc"
+            }
+            component.addVariant(configuration)
+        }
     }
 
     fun sources(artifact: File) {
-        val configuration = configurations.createDocumentionSources()
+        val configurations = listOf(
+            configurations.createDocumentionSources()
+        )
 
-        configuration.outgoing.artifact(artifact)
-
-        component.addVariant(configuration)
+        configurations.forEach { configuration ->
+            configuration.outgoing.artifact(artifact) {
+                this.classifier = "sources"
+            }
+            component.addVariant(configuration)
+        }
     }
 }
 
