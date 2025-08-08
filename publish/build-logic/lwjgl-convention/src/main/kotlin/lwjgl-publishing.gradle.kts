@@ -142,14 +142,16 @@ val pomInfo: PomInfo? = pomUrl?.let { url ->
     }
 }
 
-fun throwMissingPropertyException(vararg properties: String){
-    throw GradleException("Missing required ${when(properties.size){
+fun throwMissingPropertyException(vararg properties: String) {
+    val properties = when (properties.size) {
         1 -> "property '${properties[0]}'"
         else -> {
             val allButLast = properties.dropLast(1).joinToString(", ") { "'$it'" }
             "properties $allButLast and '${properties.last()}'"
         }
-    }} for '$publishType' publishing")
+    }
+
+    throw GradleException("Missing required $properties for '$publishType' publishing")
 }
 
 if (publishType != PublishType.LOCAL && signingCredentials == null) {
@@ -229,7 +231,7 @@ signing {
 lwjglPublication.isLocal = publishType == PublishType.LOCAL
 
 lwjglPublication {
-    if(pomInfo != null){
+    if (pomInfo != null) {
         pom {
             url.set(pomInfo.url)
 

@@ -36,7 +36,7 @@ open class LwjglPublicationExtension(
     private val actions = mutableListOf<Action<MavenPublication>>()
 
     fun create(action: Action<LwjglPublication>) {
-        if(!isEnabled){
+        if (!isEnabled) {
             return
         }
 
