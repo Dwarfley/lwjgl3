@@ -15,7 +15,7 @@ lwjglPlatforms {
 }
 
 dependencies {
-    implementation(project(":lwjgl-modules:lwjgl"))
+    api(project(":lwjgl-modules:lwjgl"))
 }
 
 lwjglPublication.create {
