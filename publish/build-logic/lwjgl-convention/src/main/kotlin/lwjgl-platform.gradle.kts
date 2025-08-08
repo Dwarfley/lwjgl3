@@ -60,18 +60,18 @@ tasks.withType<GenerateMavenPom>().configureEach {
             return Regex(regex, RegexOption.DOT_MATCHES_ALL)
         }
 
-        fun separator(text: String, leftTag: String, rightTag: String): String {
-            return regex("</($leftTag)>(.*?)<($rightTag)>").find(text)?.groupValues[2] ?: ""
+        fun separator(text: String, tag: String): String {
+            return regex("<$tag>([^<]*)").find(text)?.groupValues[1] ?: ""
         }
 
-        val text = destination.readText()
+        val oldText = destination.readText()
 
-        val separator: String = separator(text, "dependency", "dependency")
+        val separator: String = separator(oldText, "dependencies")
 
-        val resultText = regex("<dependency>.*?</dependency>").replace(text) { result ->
+        val newText = regex("<dependency>.*?</dependency>").replace(oldText) { result ->
             val dependencyText = result.value
 
-            val classifierSeparator: String = separator(dependencyText, "groupId|artifactId|version", "groupId|artifactId|version")
+            val classifierSeparator: String = separator(dependencyText, "dependency")
             val id = regex("<artifactId>(.*?)</artifactId>").find(dependencyText)?.groupValues[1] ?: ""
 
             (artifacts[id] ?: listOf("")).joinToString(separator) { classifier ->
@@ -83,7 +83,7 @@ tasks.withType<GenerateMavenPom>().configureEach {
             }
         }
 
-        destination.writeText(resultText)
+        destination.writeText(newText)
     }
 }
 
